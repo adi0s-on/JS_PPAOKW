@@ -1,0 +1,237 @@
+body
+{
+    user-select: none;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    background-color: rgb(0, 0, 0);
+}
+
+@keyframes animatezoom 
+{
+    from {transform: scale(0)} 
+    to {transform: scale(1)}
+}
+
+@keyframes animatezoomout 
+{
+    from {transform: scale(1)} 
+    to {transform: scale(0)}
+}
+
+.site_content
+{
+    margin: 3.5rem auto;
+    width: 1966px;
+}
+
+.game_window
+{
+    margin-left: 24.55rem;
+    border: 2px solid black;
+    width: 1600px;
+}
+
+.game_window:hover
+{
+    cursor: none;
+}
+
+.game_left_interface
+{
+    position: absolute;
+    width: 366px;
+    height: 1000px;
+    border: 2px solid black;
+    display: none;
+}
+
+.interface_buttons
+{
+    position: absolute;
+    margin: 323px 18px;
+    width: 315px;
+}
+
+.gold_amount
+{
+    margin: 60px 34px;
+    position: absolute;
+    font-size: 30;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: gold;
+    text-shadow: 1px 1px 5px orange;
+    user-select: none;
+}
+
+.health_bar
+{
+    position: absolute;
+    width: 312px;
+    user-select: none; 
+}
+
+.spell_button
+{
+    position: absolute;
+    margin: 42px 100px;
+    width: 110px;
+    height: 110px;
+} 
+
+.spell_button:hover
+{
+    cursor: pointer;
+    box-shadow: 0rem 0px 25px #676767;
+} 
+
+.blink_button
+{
+    margin-top: 160px;
+}
+
+.fear_button
+{
+    margin-top: 280px;
+}
+
+.fireball_button
+{
+    margin-top: 400px;
+}
+
+.toxicbolt_button
+{
+    margin-top: 520px;
+}
+
+.game_menu_background
+{
+    width: 1969px;;
+    height: 1002px;
+    z-index: 999;
+    position: absolute;
+    background: black;
+}
+
+.background_video
+{
+    position: absolute;
+    width: 1969px;
+    height: 1002px;
+    z-index: -1;
+}
+
+.vignette
+{
+    margin: -3.5rem 0px;
+    position: absolute;
+    width: 1969px;
+    height: 1060px;
+}
+
+.click_anywhere_info
+{
+    position: absolute;
+    margin: 34% 34.6%;
+    color: #e0ac019a;
+    user-select: none;
+    /* outline: black 2px solid; */
+    text-shadow: 0px 0px 30px black;
+    font-size: 56;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    z-index: 9999;
+    transition-duration: 0.8s;
+}
+
+.click_anywhere_info:hover
+{
+    text-shadow: 0px 0px 20px black;
+    color: #c79900;
+}
+
+.game_logo
+{
+
+    position: absolute;
+    margin: 15% 32%;
+    transition-duration: 0.8s;
+}
+
+.game_menu_frame
+{
+    width: 600px;
+    height: 900px;
+    /* top: 15rem; */
+    /* height: 900px; */
+    margin: -1000px 35%;
+    transition: all 0.7s linear;
+}
+
+.game_menu_buttons_frame
+{
+    position: absolute;
+    margin: 11.5rem 37%;
+    height: 680px;
+    width: 530px;
+    /* border: 2px solid pink; */
+}
+
+.game_menu_button_quit, .game_menu_button_options, .game_menu_button_start
+{
+    width: 450px;
+    margin: 7.5rem 8%;
+    display: none;
+    transition-duration: 0.3s;
+}
+
+.game_menu_button:hover
+{
+    cursor: pointer;
+    filter: drop-shadow(0px 0px 10px #676767)
+}
+
+.game_menu_button_return
+{
+    width: 450px;
+    margin: 18.5rem 8% 0px;
+    display: none;
+    transition-duration: 0.3s;
+}
+
+.options_section
+{
+    color: #c79900;
+    margin: 3rem 2.5rem;
+    display: none;
+}
+
+.options_row_title
+{
+    margin: 1rem 0rem 0rem 13rem;
+    font-size: 22;
+    word-spacing: 1.5rem;   
+}
+
+.options_row_text
+{
+    font-size: 33;
+    margin-right: 4.1rem;
+}
+
+.radio_button
+{
+    box-shadow: 0px 0px 15px #c79900;
+    margin-right: 4.1rem;
+}
+
+.options_section_title
+{
+    font-size: 45;
+    margin: 5rem 35% 1rem;
+}
+
+.options_row_title_cheat
+{
+    margin: 1rem 0rem 0rem 16rem;
+    font-size: 22;
+    word-spacing: 2.9rem;   
+}

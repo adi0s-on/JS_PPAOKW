@@ -1,0 +1,9 @@
+{
+  "name": "sorcererspath",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": 
+  {
+    "phaser": "^3.54.0"
+  }
+}
