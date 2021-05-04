@@ -1,8 +1,21 @@
+@font-face {
+    font-family: oblivionfont;
+    src: url(assets/Font/oblivion-font.ttf);
+}
+
+*
+{
+    cursor: url('assets/GameMenu/cursor.png'), auto;
+}
+
 body
 {
+    overflow: hidden;
+    margin: 0;
     user-select: none;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-family: 'oblivionfont';
     background-color: rgb(0, 0, 0);
+    color: #c79900;
 }
 
 @keyframes animatezoom 
@@ -19,15 +32,28 @@ body
 
 .site_content
 {
-    margin: 3.5rem auto;
+    margin: 0rem auto;
     width: 1966px;
 }
 
+/* .stage_number
+{
+    display: none;
+} */
+
+.game_content
+{
+    z-index: 0;
+    width: inherit; 
+} 
+
 .game_window
 {
-    margin-left: 24.55rem;
-    border: 2px solid black;
-    width: 1600px;
+    top: 0;
+    margin-top: 0px;
+    margin-left: 18vw;
+    width: 82vw;
+    height: 100vh;
 }
 
 .game_window:hover
@@ -38,35 +64,113 @@ body
 .game_left_interface
 {
     position: absolute;
-    width: 366px;
-    height: 1000px;
-    border: 2px solid black;
+    left: 0;
+    top: 0;
+    width: 18vw;
+    height: 100vh;
     display: none;
 }
 
-.interface_buttons
+.left_interface
 {
     position: absolute;
-    margin: 323px 18px;
+    margin: 32.5vh 0.8vw;
+    /* left: 0; */
     width: 315px;
+    height: fit-content;
+}
+.left_interface_buttons
+{
+    width: 15.1vw;
+    height: 56vh;
+    margin-top: 7.2vh;
 }
 
-.gold_amount
+.xp_amount
 {
-    margin: 60px 34px;
+    margin: 7vh 2vw;
     position: absolute;
-    font-size: 30;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    color: gold;
-    text-shadow: 1px 1px 5px orange;
+    font-size: 1.5vw;
+    color: green;
+    text-shadow: 1px 1px 5px greenyellow;
     user-select: none;
 }
 
 .health_bar
 {
     position: absolute;
-    width: 312px;
+    width: 15.4vw;
     user-select: none; 
+}
+
+.health_bar_amount
+{
+    color: #c79900;
+    text-shadow: -0.05vh -0.05vh 0 #000, 0.05vh -0.05vh 0 #000, -0.05vh 0.05vh 0 #000, 0.05vh 0.05vh 0 #000;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    position: absolute;
+    width: 15.3vw;
+    height: 3vh;
+    margin: 0vh 0vh 0vh 0vh;
+    text-align: center;
+    font-size: 3vh;
+    opacity: 50%;
+}
+
+.mana_bar
+{
+    position: absolute;
+    margin-top: 3.5vh;
+    width: 15.4vw;
+    user-select: none;
+}
+
+.mana_bar_amount
+{
+    color: #c79900;
+    text-shadow: -0.05vh -0.05vh 0 #000, 0.05vh -0.05vh 0 #000, -0.05vh 0.05vh 0 #000, 0.05vh 0.05vh 0 #000;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    position: absolute;
+    width: 15.3vw;
+    height: 3vh;
+    text-align: center;
+    margin-top: 3.6vh;
+    font-size: 3vh;
+    opacity: 50%;
+}
+
+.health_potion
+{
+    width: 6vw;
+    margin: 5vh 0px 0px 1.5vh;
+    /* margin-left: 3vh; */
+    /* margin: 1vh 1vh 0vh 1.5vh; */
+}
+
+.mana_potion
+{
+    width: 6vw;
+    margin: 5vh 0px 0px 2vh;
+}
+
+.mana_potion:hover, .health_potion:hover
+{
+    filter: drop-shadow(0px 0px 10px #676767) brightness(1.2) contrast(1.1);
+    transition-duration: 0.2s;
+}
+
+.skill_book
+{
+    position: absolute;
+    bottom: 0;
+    margin: 5vh 0px 1vh 0px;
+    width: 6vw;
+}
+
+.skill_book:hover
+{
+    filter: drop-shadow(0px 0px 10px #676767) brightness(1.2) contrast(1.1);
+    transition-duration: 0.2s;
 }
 
 .spell_button
@@ -79,7 +183,8 @@ body
 
 .spell_button:hover
 {
-    cursor: pointer;
+    cursor: url('assets/GameMenu/cursorHover.png'), auto;
+    transition-duration: 0.2s;
     box-shadow: 0rem 0px 25px #676767;
 } 
 
@@ -105,40 +210,45 @@ body
 
 .game_menu_background
 {
-    width: 1969px;;
+    width: 1969px;
     height: 1002px;
-    z-index: 999;
+    z-index: 6;
     position: absolute;
-    background: black;
+    background: transparent;
 }
 
 .background_video
 {
     position: absolute;
-    width: 1969px;
-    height: 1002px;
-    z-index: -1;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 5;
+    object-fit: fill;
 }
 
 .vignette
 {
-    margin: -3.5rem 0px;
+    /* margin: -3.5rem 0px;  */
     position: absolute;
-    width: 1969px;
-    height: 1060px;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 5;
 }
 
 .click_anywhere_info
 {
     position: absolute;
-    margin: 34% 34.6%;
+    margin: 34% 34%;
     color: #e0ac019a;
     user-select: none;
     /* outline: black 2px solid; */
     text-shadow: 0px 0px 30px black;
-    font-size: 56;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    z-index: 9999;
+    font-size: 45;
+    z-index: 6;
     transition-duration: 0.8s;
 }
 
@@ -180,47 +290,53 @@ body
     width: 450px;
     margin: 7.5rem 8%;
     display: none;
-    transition-duration: 0.3s;
 }
 
 .game_menu_button:hover
 {
-    cursor: pointer;
-    filter: drop-shadow(0px 0px 10px #676767)
+    cursor: url('assets/GameMenu/cursorHover.png'), auto;
+    transition-duration: 0.2s;
+    filter: drop-shadow(0px 0px 10px #676767) brightness(1.2) contrast(1.1);
 }
 
 .game_menu_button_return
 {
     width: 450px;
-    margin: 18.5rem 8% 0px;
+    margin: 45% 7% 0px;
     display: none;
-    transition-duration: 0.3s;
+    transition-duration: 0.2s;
 }
 
 .options_section
 {
     color: #c79900;
-    margin: 3rem 2.5rem;
+    margin: 3rem 2rem;
     display: none;
 }
 
 .options_row_title
 {
-    margin: 1rem 0rem 0rem 13rem;
-    font-size: 22;
-    word-spacing: 1.5rem;   
+    margin: 1rem 0rem 0rem 12rem;
+    font-size: 18;
+    word-spacing: 1.4rem;   
 }
 
-.options_row_text
+.options_row_text, .options_row_text_last
 {
-    font-size: 33;
-    margin-right: 4.1rem;
+    font-size: 25;
+    margin-right: 2.7rem;
 }
 
 .radio_button
 {
     box-shadow: 0px 0px 15px #c79900;
-    margin-right: 4.1rem;
+    margin-right: 4.5rem;
+    left: 5000px;
+}
+
+.radio_button:hover
+{
+    cursor: url('assets/GameMenu/cursorHover.png'), auto;
 }
 
 .options_section_title
@@ -231,7 +347,89 @@ body
 
 .options_row_title_cheat
 {
-    margin: 1rem 0rem 0rem 16rem;
+    margin: 1rem 0rem 0rem 14.5rem;
     font-size: 22;
     word-spacing: 2.9rem;   
 }
+
+.quit_section_credits
+{
+    color: #c79900;
+    margin: 13rem 2.5rem -7rem;
+    display: none;
+}
+
+.quit_title_created_by
+{
+    font-size: 50;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.quit_row, .quit_row_last
+{
+    font-size: 34;
+    text-align: center;
+    /* margin-left: 6.3rem; */
+}
+
+.quit_row_last
+{
+    margin-bottom: 20rem;
+}
+
+.restart_question
+{
+    position: absolute;
+    width: 30vw;
+    height: 25vh;
+    top: 0;
+    margin: 15% 42%;
+    box-shadow: 0px 0px 120px black;
+    left: 0;
+    z-index: 7;
+    display: none;
+}
+
+.restart_question_ui
+{
+    position: absolute;
+    z-index: 7;
+    width: 30vw;
+    height: 25vh;
+}
+
+.restart_question_text
+{
+    position: absolute;
+    width: 26vw;
+    margin: 4vh 2vw;
+    z-index: 7;
+    font-size: 1.5vw;
+    text-shadow: 0px 0px 30px black;
+    text-align: center;
+}
+
+.restart_question_button
+{
+    position: absolute;
+    width: 10.5vw;
+    z-index: 7;
+}
+
+.restart_question_button:hover
+{
+    cursor: url('assets/GameMenu/cursorHover.png'), auto;
+    transition-duration: 0.2s;
+    filter: drop-shadow(0px 0px 10px #676767) brightness(1.2) contrast(1.1);
+}
+
+.restart_question_button_no
+{
+    margin: 12vh 16vw;
+}
+.restart_question_button_yes
+{
+    margin: 12vh 3.5vw;
+}
+

@@ -1,66 +1,101 @@
 <html lang="pl">
     <head>
+        <!-- <meta content="initial-scale=0.5"> -->
         <title>Sorcerer's Path</title>
         <script src="//cdn.jsdelivr.net/npm/phaser@3.54.0/dist/phaser.js"></script>
         <link rel="stylesheet" type="text/css" href="MP_2-Style.css">
     </head>
     
     <body>
-        <audio id="chains_down_sound" src="assets/Audio/chainsSoundDown.mp3" type="audio/mpeg"></audio>
-        <audio id="chains_up_sound" src="assets/Audio/chainsSoundUp.mp3" type="audio/mpeg"></audio>
-        <audio id="rain_loop" src="assets/Audio/rainLoop.mp3" type="audio/mpeg" loop></audio>
-        <audio id="main_menu_music" src="assets/Audio/mainMenuMusic.mp3" type="audio/mpeg"></audio>
-        <audio id="stage_1" src="assets/Audio/stage1Music.mp3" type="audio/mpeg" loop></audio>
-
+        <audio id="chains_down_sound" src="assets/Audio/Fx/chainsSoundDown.mp3" type="audio/mpeg"></audio>
+        <audio id="start_game_sound" src="assets/Audio/Fx/startGameClick.mp3" type="audio/mpeg"></audio>
+        <audio id="menu_click_sound" src="assets/Audio/Fx/menuClick.mp3" type="audio/mpeg"></audio>
+        <audio id="chains_up_sound" src="assets/Audio/Fx/chainsSoundUp.mp3" type="audio/mpeg"></audio>
+        <audio id="rain_loop" src="assets/Audio/Fx/rainLoop.mp3" type="audio/mpeg" loop></audio>
+        <audio id="main_menu_music" src="assets/Audio/Music/mainMenuMusic.mp3" type="audio/mpeg"></audio>
+        <audio id="stage_1_music" src="assets/Audio/Music/stage1Music.mp3" type="audio/mpeg" loop></audio>
+        <audio id="buy_spell_sound" src="assets/Audio/Fx/spellBuySound.mp3" type="audio/mpeg"></audio>
+        <!-- <div id="stage_number" class="stage_number">0</div> -->
         <div id="site_content" class="site_content">
 
-            <div id="game_menu_background" class="game_menu_background">
-                <img id="vignette" class="vignette" src="assets/Backgrounds/vignette.png" onclick="showMenu()">
-                <img id="game_logo" class="game_logo" src="assets/Backgrounds/gameLogo.png">
+            <div id="game_menu_background" class="game_menu_background" onclick="showMenu()">
+                <img id="game_logo" class="game_logo" src="assets/GameMenu/gameLogo.png">
                 <div id="click_anywhere_info" class="click_anywhere_info" onclick="showMenu()">Click anywhere to begin</div>
-                <video id="background_video" class="background_video" autoplay loop> 
-                    <source src="assets/BackgroundAnimations/rainBackground.mp4">
-                </video>
 
                 <div id="game_menu_buttons_frame" class="game_menu_buttons_frame" onclick="showMenu()">
 
                     <div id="options_section" class="options_section">
                         <div class="options_row_title">Easy Normal Hard</div>
                         <label class="options_row_text">Difficulty</label>
-                        <input class="radio_button" type="radio" name="difficulty" value="easy">
-                        <input class="radio_button" type="radio" name="difficulty" value="normal">
-                        <input class="radio_button" type="radio" name="difficulty" value="hard">
+                        <input class="radio_button" type="radio" name="difficulty" value="1">
+                        <input class="radio_button" type="radio" name="difficulty" value="2" checked>
+                        <input class="radio_button" type="radio" name="difficulty" value="3">
                         
                         <div class="options_section_title">Cheats</div>
-                        <div class="options_row_title_cheat">On Off</div>
-                        <label class="options_row_text">Invincibility</label>
+                        <div class="options_row_title_cheat">Off On</div>
+                        <label class="options_row_text">Invincibility:</label>
+                        <input class="radio_button" type="radio" name="invincibility" value="off" checked>
                         <input class="radio_button" type="radio" name="invincibility" value="on">
-                        <input class="radio_button" type="radio" name="invincibility" value="off">
-                        
 
+                        <label class="options_row_text">Unlimited xp:</label>
+                        <input class="radio_button" type="radio" name="experience" value="off" checked>
+                        <input class="radio_button" type="radio" name="experience" value="on">
+                    </div>
+
+                    <div id="quit_section_credits" class="quit_section_credits">
+                        <div class="quit_title_created_by">Created by:</div>
+                        <div class="quit_row"_text">Adrian Oniszczuk</div>
+                        <div class="quit_row">Pawel Paszkowski</div>
+                        <div class="quit_row_last">Krzysztof Waszczuk</div>
                     </div>
 
                     <img id="game_menu_button_start" class="game_menu_button game_menu_button_start" src="assets/GameMenu/ButtonStartGame-min.png" onclick="startMenuButtonsChoice('startGameButton')">
                     <img id="game_menu_button_options" class="game_menu_button game_menu_button_options" src="assets/GameMenu/ButtonOptions-min.png" onclick="startMenuButtonsChoice('optionsButton')"">
-                    <img id="game_menu_button_quit" class="game_menu_button game_menu_button_quit" src="assets/GameMenu/ButtonQuitGame-min.png" onclick="startMenuButtonsChoice('quitButton')"">
+                    <img id="game_menu_button_quit" class="game_menu_button game_menu_button_quit" src="assets/GameMenu/ButtonCredits-min.png" onclick="startMenuButtonsChoice('creditsButton')"">
                     <img id="game_menu_button_return" class="game_menu_button game_menu_button_return" src="assets/GameMenu/ButtonReturn-min.png" onclick="startMenuButtonsChoice('returnButton')"">
                 </div>
                 <img id="game_menu_frame" class="game_menu_frame" src="assets/GameMenu/PauseMenuUI-min.png">
             </div>
             
-            <img id="game_left_interface" class="game_left_interface" src="assets/Backgrounds//interface.jpg">
-            <div class="gold_amount">0</div>
-            <div class="interface_buttons">
+        </div>
+        <div class="game_content">
+
+            <img id="game_left_interface" class="game_left_interface" src="assets/GameMenu/interface.jpg">
+            <div class="xp_amount">0</div>
+            <div class="left_interface">
                 <img id="health_bar" class="health_bar" src="assets/HpBars/hpBar100.jpg">
-                <img class="spell_button lightning_button" src="assets/Icons/LightningIcon.jpg" onclick="interfaceButtonsFunctionalities('spellLightning')">
-                <img class="spell_button blink_button" src="assets/Icons/BlinkIcon.jpg" onclick="interfaceButtonsFunctionalities('spellBlink')">
-                <img class="spell_button fear_button" src="assets/Icons/FearIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFear')">
-                <img class="spell_button fireball_button" src="assets/Icons/FireballIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFireball')">
-                <img class="spell_button toxicbolt_button" src="assets/Icons/ToxicBoltIcon.jpg" onclick="interfaceButtonsFunctionalities('spellToxicbolt')">
+                <label id="health_bar_amount" class="health_bar_amount">100/100</label>
+                <img id="mana_bar" class="mana_bar" src="assets/ManaBar/manaBar100.jpg">
+                <label id="mana_bar_amount" class="mana_bar_amount">100/100</label>
+                <div class="left_interface_buttons">
+                    <img id="skill_book" class="skill_book" src="assets/Icons/bookSkills.png" onclick="showSkillsMenu()">
+                    <img class="health_potion" src="assets/Icons//healthPotion.png" onclick="restoreHp()">
+                    <img class="mana_potion" src="assets/Icons/manaPotion.png" onclick="restoreMana()">
+                    <!-- <img class="spell_button lightning_button" src="assets/Icons/LightningIcon.jpg" onclick="interfaceButtonsFunctionalities('spellLightning')">
+                    <img class="spell_button blink_button" src="assets/Icons/BlinkIcon.jpg" onclick="interfaceButtonsFunctionalities('spellBlink')">
+                    <img class="spell_button fear_button" src="assets/Icons/FearIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFear')">
+                    <img class="spell_button fireball_button" src="assets/Icons/FireballIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFireball')">
+                    <img class="spell_button toxicbolt_button" src="assets/Icons/ToxicBoltIcon.jpg" onclick="interfaceButtonsFunctionalities('spellToxicbolt')"> -->
+                </div>
             </div>
             <div class="game_window" id="game"></div>
-
+            <div id="restart_question" class="restart_question">
+                <img id="restart_question_ui" class="restart_question_ui" src="assets/GameMenu/MenuPopup.png">
+                <div class="restart_question_buttons">
+                    <img id="restart_question_button_no" class="restart_question_button restart_question_button_no" src="assets/GameMenu/ButtonSmallNo.png" onclick="">
+                    <img id="restart_question_button_yes" class="restart_question_button restart_question_button_yes" src="assets/GameMenu/ButtonSmallYes.png" onclick="respawn()">
+                </div>
+                <div class="restart_question_text">You died. Do you want to respawn?</div>
+            </div>
+            
         </div>
+
+
+
+        <video id="background_video" class="background_video" autoplay loop> 
+            <source src="assets/BackgroundAnimations/rainBackground.mp4">
+        </video>
+        <img id="vignette" class="vignette" src="assets/GameMenu/vignette.png" onclick="showMenu()">
 
     </body>
 
