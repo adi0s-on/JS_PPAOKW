@@ -260,7 +260,7 @@ body
 
 .game_logo
 {
-
+    width: 670px;
     position: absolute;
     margin: 15% 32%;
     transition-duration: 0.8s;
