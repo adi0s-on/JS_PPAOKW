@@ -14,7 +14,10 @@
         <audio id="rain_loop" src="assets/Audio/Fx/rainLoop.mp3" type="audio/mpeg" loop></audio>
         <audio id="main_menu_music" src="assets/Audio/Music/mainMenuMusic.mp3" type="audio/mpeg"></audio>
         <audio id="stage_1_music" src="assets/Audio/Music/stage1Music.mp3" type="audio/mpeg" loop></audio>
+        <audio id="stage_1_ambience" src="assets/Audio/Music/stage1Ambience.mp3" type="audio/mpeg" loop></audio>
         <audio id="buy_spell_sound" src="assets/Audio/Fx/spellBuySound.mp3" type="audio/mpeg"></audio>
+        <audio id="book_use" src="assets/Audio/Fx/bookOpen.mp3" type="audio/mpeg"></audio>
+        <audio id="cantAfford" src="assets/Audio/Fx/iCantAffordThat.mp3" type="audio/mpeg"></audio>
         <!-- <div id="stage_number" class="stage_number">0</div> -->
         <div id="site_content" class="site_content">
 
@@ -44,7 +47,7 @@
 
                     <div id="quit_section_credits" class="quit_section_credits">
                         <div class="quit_title_created_by">Created by:</div>
-                        <div class="quit_row"_text">Adrian Oniszczuk</div>
+                        <div class="quit_row">Adrian Oniszczuk</div>
                         <div class="quit_row">Pawel Paszkowski</div>
                         <div class="quit_row_last">Krzysztof Waszczuk</div>
                     </div>
@@ -61,7 +64,7 @@
         <div class="game_content">
 
             <img id="game_left_interface" class="game_left_interface" src="assets/GameMenu/interface.jpg">
-            <div class="xp_amount">0</div>
+            <div id="xp_amount" class="xp_amount">0</div>
             <div class="left_interface">
                 <img id="health_bar" class="health_bar" src="assets/HpBars/hpBar100.jpg">
                 <label id="health_bar_amount" class="health_bar_amount">100/100</label>
@@ -71,22 +74,10 @@
                     <img id="skill_book" class="skill_book" src="assets/Icons/bookSkills.png" onclick="showSkillsMenu()">
                     <img class="health_potion" src="assets/Icons//healthPotion.png" onclick="restoreHp()">
                     <img class="mana_potion" src="assets/Icons/manaPotion.png" onclick="restoreMana()">
-                    <!-- <img class="spell_button lightning_button" src="assets/Icons/LightningIcon.jpg" onclick="interfaceButtonsFunctionalities('spellLightning')">
-                    <img class="spell_button blink_button" src="assets/Icons/BlinkIcon.jpg" onclick="interfaceButtonsFunctionalities('spellBlink')">
-                    <img class="spell_button fear_button" src="assets/Icons/FearIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFear')">
-                    <img class="spell_button fireball_button" src="assets/Icons/FireballIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFireball')">
-                    <img class="spell_button toxicbolt_button" src="assets/Icons/ToxicBoltIcon.jpg" onclick="interfaceButtonsFunctionalities('spellToxicbolt')"> -->
                 </div>
             </div>
             <div class="game_window" id="game"></div>
-            <div id="restart_question" class="restart_question">
-                <img id="restart_question_ui" class="restart_question_ui" src="assets/GameMenu/MenuPopup.png">
-                <div class="restart_question_buttons">
-                    <img id="restart_question_button_no" class="restart_question_button restart_question_button_no" src="assets/GameMenu/ButtonSmallNo.png" onclick="">
-                    <img id="restart_question_button_yes" class="restart_question_button restart_question_button_yes" src="assets/GameMenu/ButtonSmallYes.png" onclick="">
-                </div>
-                <div class="restart_question_text">You died. Do you want to respawn?</div>
-            </div>
+
         </div>
 
 
@@ -95,7 +86,29 @@
             <source src="assets/BackgroundAnimations/rainBackground.mp4">
         </video>
         <img id="vignette" class="vignette" src="assets/GameMenu/vignette.png" onclick="showMenu()">
+        
+        
+        <img id="blackout" class="blackout" src="assets/GameMenu/BackgroundBlackout.png">
+        <video id="skill_book_video" class="skill_book_video"> 
+            <source src="assets/BackgroundAnimations/bookAnimation.mp4">
+        </video>
+        <div id="spell_buttons" class="spell_buttons">
 
+            <img id="lightning_button" class="spell_button lightning_button" src="assets/Icons/LightningIcon.jpg" onclick="interfaceButtonsFunctionalities('spellLightning')">
+            <label for="lightning_button" class="lightning_button_label">Hurls a powerful lightning bolt that deals nature damage.</label>
+
+            <img id="blink_button" class="spell_button blink_button" src="assets/Icons/BlinkIcon.jpg" onclick="interfaceButtonsFunctionalities('spellBlink')">
+            <label for="blink_button" class="blink_button_label">Teleports you forward 5 meters and frees you from any obstacles.</label>
+
+            <img id="fear_button" class="spell_button fear_button" src="assets/Icons/FearIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFear')">
+            <label for="fear_button" class="fear_button_label">Strikes fear in the enemy, disorienting for 4 sec.</label>
+
+            <img id="fireball_button" class="spell_button fireball_button" src="assets/Icons/FireballIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFireball')">
+            <label for="fireball_button" class="fireball_button_label">Throws a fiery ball that causes fire damage.</label>
+
+            <img id="toxicbolt_button" class="spell_button toxicbolt_button" src="assets/Icons/ToxicBoltIcon.jpg" onclick="interfaceButtonsFunctionalities('spellToxicbolt')">
+            <label for="toxicbolt_button" class="toxicbolt_button_label">Unleashes a devastating toxic bolt that deals nature damage. Can cut through creatures.</label>
+        </div>
     </body>
 
     <script src="MP_2-Script.js"></script>

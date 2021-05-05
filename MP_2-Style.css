@@ -165,6 +165,7 @@ body
     bottom: 0;
     margin: 5vh 0px 1vh 0px;
     width: 6vw;
+    z-index: 5;
 }
 
 .skill_book:hover
@@ -173,13 +174,54 @@ body
     transition-duration: 0.2s;
 }
 
+.blackout
+{
+    position: absolute;
+    z-index: 6;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+}
+
+.skill_book_video
+{
+    position: absolute;
+    z-index: 6;
+    top: 4vh;
+    width: 60vw;
+    height: 90vh;
+    margin: 0px 10vw 0vw 30vw;
+    display: none;
+    transition-duration: 0.5s;
+}
+
+.spell_buttons
+{
+    display: none;
+}
+
 .spell_button
 {
     position: absolute;
-    margin: 42px 100px;
-    width: 110px;
-    height: 110px;
+    top: 0;
+    z-index: 6;
+    width: 6vw;
+    height: 11vh;
+    box-shadow: 0vw 0vw 1vw black;
 } 
+
+.spell_button_after
+{
+    position: absolute;
+    top: 0;
+    z-index: 6;
+    width: 6vw;
+    height: 11vh;
+    box-shadow: 0vw 0vw 1vw black;
+    background-color: green;
+    background-blend-mode: multiply;
+}
 
 .spell_button:hover
 {
@@ -188,25 +230,99 @@ body
     box-shadow: 0rem 0px 25px #676767;
 } 
 
+
+
+.lightning_button
+{
+    margin: 20vh 10vw 0vw 63vw;
+}
+
+.lightning_button_label
+{
+    margin: 20vh 10vw 0vw 70vw;
+    font-size: 2vh;
+    width: 15vw;
+    text-align: justify;
+    color: #e6b000;
+    text-shadow: 0.5vh 0.5vh 1vh black;
+    z-index: 6;
+    position: absolute;
+    top: 0;
+}
+
 .blink_button
 {
-    margin-top: 160px;
+    margin: 20vh 10vw 0vw 34vw;
+}
+
+.blink_button_label
+{
+    margin: 20vh 10vw 0vw 41vw;
+    font-size: 2vh;
+    width: 15vw;
+    text-align: justify;
+    color: #e6b000;
+    text-shadow: 0.5vh 0.5vh 1vh black;
+    z-index: 6;
+    position: absolute;
+    top: 0;
 }
 
 .fear_button
 {
-    margin-top: 280px;
+    margin: 42vh 10vw 0vw 63vw;
+}
+
+.fear_button_label
+{
+    margin: 42vh 10vw 0vw 70vw;
+    font-size: 2vh;
+    width: 15vw;
+    text-align: justify;
+    color: #e6b000;
+    text-shadow: 0.5vh 0.5vh 1vh black;
+    z-index: 6;
+    position: absolute;
+    top: 0;
 }
 
 .fireball_button
 {
-    margin-top: 400px;
+    margin: 42vh 10vw 0vw 34vw;
+}
+
+.fireball_button_label
+{
+    margin: 42vh 10vw 0vw 41vw;
+    font-size: 2vh;
+    width: 15vw;
+    text-align: justify;
+    color: #e6b000;
+    text-shadow: 0.5vh 0.5vh 1vh black;
+    z-index: 6;
+    position: absolute;
+    top: 0;
 }
 
 .toxicbolt_button
 {
-    margin-top: 520px;
+    margin: 64vh 10vw 0vw 34vw;
 }
+
+.toxicbolt_button_label
+{
+    margin: 64vh 10vw 0vw 41vw;
+    font-size: 2vh;
+    width: 15vw;
+    text-align: justify;
+    color: #e6b000;
+    text-shadow: 0.5vh 0.5vh 1vh black;
+    z-index: 6;
+    position: absolute;
+    top: 0;
+}
+
+
 
 .game_menu_background
 {
@@ -376,60 +492,5 @@ body
 .quit_row_last
 {
     margin-bottom: 20rem;
-}
-
-.restart_question
-{
-    position: absolute;
-    width: 30vw;
-    height: 25vh;
-    top: 0;
-    margin: 15% 42%;
-    box-shadow: 0px 0px 120px black;
-    left: 0;
-    z-index: 7;
-    display: none;
-}
-
-.restart_question_ui
-{
-    position: absolute;
-    z-index: 7;
-    width: 30vw;
-    height: 25vh;
-}
-
-.restart_question_text
-{
-    position: absolute;
-    width: 26vw;
-    margin: 4vh 2vw;
-    z-index: 7;
-    font-size: 1.5vw;
-    text-shadow: 0px 0px 30px black;
-    text-align: center;
-}
-
-.restart_question_button
-{
-    position: absolute;
-    width: 10.5vw;
-    z-index: 7;
-}
-
-.restart_question_button:hover
-{
-    cursor: url('assets/GameMenu/cursorHover.png'), auto;
-    transition-duration: 0.2s;
-    filter: drop-shadow(0px 0px 10px #676767) brightness(1.2) contrast(1.1);
-}
-
-.restart_question_button_no
-{
-    margin: 12vh 16vw;
-}
-.restart_question_button_yes
-{
-    margin: 12vh 3.5vw;
 }
 

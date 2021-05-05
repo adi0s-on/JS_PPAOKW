@@ -10,8 +10,12 @@ TODOLIST
 - animacja dialog
 */
 
-let healthMain = 100; let manaMain = 100;
-let healthAmount = healthMain; let manaAmount = manaMain;
+// plane.once(Phaser.Animations.Events.SPRITE_ANIMATION_COMPLETE, () => {
+//   plane.destroy();
+
+var xp = 0;
+var healthMain = 100; let manaMain = 100;
+var healthAmount = healthMain; let manaAmount = manaMain;
 //difficulty check
 if(document.getElementsByName("invincibility")[1].checked)
 {
@@ -81,7 +85,10 @@ function startGame()
       backgroundImage.displayWidth = 1975;
       backgroundImage.displayHeight  = 1240;
 
-      // document.getElementById("stage_1_music").load(); //music play
+
+      
+      document.getElementById("stage_1_ambience").play(); //music play
+      document.getElementById("stage_1_ambience").volume = "0.5"; //music volume set
       document.getElementById("stage_1_music").play(); //music play
       document.getElementById("stage_1_music").volume = "0.5"; //music volume set
 
@@ -153,23 +160,26 @@ function startGame()
         // enemiesSkeletonSprites[i].body.bounce.set(1);
       }
       // enemiesSkeleton[2].drop ="healthDrop"
-      console.log(enemiesSkeletonSprites.length);
       for(let i = 0; i < enemiesSkeletonSprites.length; i++)
       {
         for(let j = 0; j < enemiesSkeletonSprites.length; j++)
         {
           this.physics.add.collider(enemiesSkeletonSprites[i], enemiesSkeletonSprites[j], () =>
           {
-            enemiesSkeletonSprites[i].body.velocity.x = 0;
-            enemiesSkeletonSprites[i].body.velocity.y = 0;
+            // enemiesSkeletonSprites[i].body.velocity.x = 0;
+            // enemiesSkeletonSprites[i].body.velocity.y = 0;
+            // enemiesSkeletonSprites[i].body.velocity.x += 20;
+            // enemiesSkeletonSprites[i].body.velocity.y += 20;
           });
           this.physics.add.overlap(enemiesSkeletonSprites[i], enemiesSkeletonSprites[j], () =>
           {
-            enemiesSkeletonSprites[i].x += 1;
-            // enemiesSkeletonSprites[i].y += 1;
-            enemiesSkeletonSprites[j].x -= 1;
-            // enemiesSkeletonSprites[j].y -= 1;
-            // enemiesSkeletonSprites[i].body.velocity.y = 0;
+
+            enemiesSkeletonSprites[i].x += 55;
+            enemiesSkeletonSprites[j].x -= 55;
+            enemiesSkeletonSprites[i].body.velocity.x = 0;
+            enemiesSkeletonSprites[i].body.velocity.y = 0;
+            enemiesSkeletonSprites[i].body.velocity.x += 20;
+            enemiesSkeletonSprites[i].body.velocity.y += 20;
           });
         }
       }
@@ -181,11 +191,16 @@ function startGame()
       });
       
       cursors = this.input.keyboard.createCursorKeys(); // UP DOWN LEFT RIGHT SPACE bind kinda
+      wButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+      sButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+      aButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+      dButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
       escapeButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC); //escape button bind
       leftControlButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL); //escape button bind
   
       this.scene.pause();
       document.getElementById("stage_1_music").pause();
+      document.getElementById("stage_1_ambience").pause();
       this.scene.launch('PauseMenu');
     },
   
@@ -196,6 +211,9 @@ function startGame()
       if(healthAmount < 0)
       {
         healthAmount = 0;
+        document.getElementById("stage_1_music").src = "assets/Audio/Music/deadMusic.mp3";
+        document.getElementById("stage_1_music").load();
+        document.getElementById("stage_1_music").play();
         document.getElementById("health_bar_amount").innerHTML = (healthAmount.toFixed(1) + "/" + healthMain);
 
         playerDead = this.physics.add.image(player.x, player.y, 'deadPlayer');
@@ -212,10 +230,15 @@ function startGame()
         restartButtonYes.displayHeight = 100;
         restartButtonYes.on('pointerdown', function(event)
         {
-          document.getElementById("stage_1_music").pause();
-          document.getElementById("stage_1_music").currentTime = 0;
+          document.getElementById("stage_1_music").src = "assets/Audio/Music/stage1Music.mp3";
+          document.getElementById("stage_1_music").load();
+          document.getElementById("stage_1_music").play();
+          document.getElementById("stage_1_ambience").currentTime = 0;
+          document.getElementById("stage_1_ambience").play();
+          healthTemp = 100;
+          document.getElementById("health_bar").src = "assets/HpBars/hpBar100.jpg";
+          document.getElementById("health_bar_amount").innerHTML = (healthTemp.toFixed(1) + "/" + healthMain);
           game.scene.scenes[0].scene.restart();
-          // this.scene.restart();
         });
         restartButtonYes.on('pointerover', function(event)
         {
@@ -318,6 +341,7 @@ function startGame()
     create: function()
     {
       document.getElementById("stage_1_music").pause();
+      document.getElementById("stage_1_ambience").pause();
       backgroundPause = this.add.image(987.5, 620, 'pauseMenuBackground');
       backgroundPause.displayWidth = 1975;
       backgroundPause.displayHeight = 1240;
@@ -331,14 +355,18 @@ function startGame()
       unpauseButton.displayHeight = 90;
       unpauseButton.on('pointerdown', function(event)
       {
-        console.log("Game resumed");
-        escapeButtonMenuSwitch = true;
-        backgroundPause.destroy();
-        pauseMenuTile.destroy();
-        unpauseButton.destroy();
-        exitButton.destroy();
-        game.scene.scenes[currentStage - 1].scene.resume();
-        document.getElementById("stage_1_music").play();
+        if(document.getElementById("spell_buttons").style.display != "block")
+        {
+          console.log("Game resumed");
+          escapeButtonMenuSwitch = true;
+          backgroundPause.destroy();
+          pauseMenuTile.destroy();
+          unpauseButton.destroy();
+          exitButton.destroy();
+          game.scene.scenes[currentStage - 1].scene.resume();
+          document.getElementById("stage_1_music").play();
+          document.getElementById("stage_1_ambience").play();
+        }
       });
 
 
@@ -346,8 +374,11 @@ function startGame()
       exitButton.displayWidth = 577;
       exitButton.displayHeight = 90;
       exitButton.on('pointerdown', function(event)
-      {
-        location.reload();
+      {        
+        if(document.getElementById("spell_buttons").style.display != "block")
+        {
+          location.reload();
+        }
       });
 
       escapeButtonMenu = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
@@ -366,17 +397,13 @@ function startGame()
           pauseMenuTile.destroy();
           unpauseButton.destroy();
           exitButton.destroy();
-
-          switch(currentStage)
-          {
-            case 1:
-              {
-                this.scene.resume('FirstStage');
-                break;
-              }
-          }
-
+          game.scene.scenes[currentStage - 1].scene.resume();
           document.getElementById("stage_1_music").play();
+          document.getElementById("stage_1_ambience").play();
+          if(document.getElementById("skill_book_video").style.display != "none")
+          {
+            hideSkillsMenu();
+          }
         }
       }
       if(escapeButtonMenu.isUp)
@@ -710,6 +737,8 @@ function startGame()
 
 
 
+
+
   //whole game configuration, width, height, scenes etc..
   config = 
   {
@@ -729,8 +758,7 @@ function startGame()
     scene: [ FirstStage, PauseMenu ]
   };
 
-  var game = new Phaser.Game(config); //game object, most important
-  console.log(game);
+  game = new Phaser.Game(config); //game object, most important
   var enemiesSkeleton = [];
   var enemiesSkeletonSprites = [];
   var enemiesLich = [];
@@ -740,6 +768,7 @@ function startGame()
   var leftControlSwitch, escapeButtonSwitch, escapeButtonMenuSwitch, fireballSwitch, lightningSwitch, toxicboltSwitch, fearSwitch, attackSwitch;
   var equippedSpell = "fireball", playerFacingDirection = "Up";
 }
+
 
 
 
@@ -759,38 +788,97 @@ function interfaceButtonsFunctionalities(chosenSpell)
   }
   function spellLightning()
   {
-    document.getElementById("buy_spell_sound").load();
-    document.getElementById("buy_spell_sound").play();
-    document.getElementsByClassName("spell_button")[0].style.display = "none";
-    spellsBought[0] = true;
+    if(xp >= 30)
+    {
+      xp -= 30;
+      document.getElementById("xp_amount").innerText = xp.toFixed(2);
+      document.getElementById("buy_spell_sound").load();
+      document.getElementById("buy_spell_sound").play();
+      document.getElementById("lightning_button").className = "spell_button_after lightning_button"
+      document.getElementById("lightning_button").onclick = "";
+      document.getElementById("lightning_button").style.opacity = "50%";
+      spellsBought[0] = true;
+    }
+    else
+    {
+      document.getElementById("cantAfford").load();
+      document.getElementById("cantAfford").play();
+    }
   }
   function spellBlink()
   {
-    document.getElementById("buy_spell_sound").load();
-    document.getElementById("buy_spell_sound").play();
-    document.getElementsByClassName("spell_button")[1].style.display = "none";
-    spellsBought[1] = true;
+    if(xp >= 15)
+    {
+      xp -= 15;
+      document.getElementById("xp_amount").innerText = xp.toFixed(2);
+      document.getElementById("buy_spell_sound").load();
+      document.getElementById("buy_spell_sound").play();
+      document.getElementById("blink_button").className = "spell_button_after blink_button"
+      document.getElementById("blink_button").onclick = "";
+      document.getElementById("blink_button").style.opacity = "50%";
+      spellsBought[1] = true;
+    }
+    else
+    {
+      document.getElementById("cantAfford").load();
+      document.getElementById("cantAfford").play();
+    }
   }
   function spellFear()
   {
-    document.getElementById("buy_spell_sound").load();
-    document.getElementById("buy_spell_sound").play();
-    document.getElementsByClassName("spell_button")[2].style.display = "none";
-    spellsBought[2] = true;
+    if(xp >= 20)
+    {
+      xp -= 15;
+      document.getElementById("xp_amount").innerText = xp.toFixed(2);
+      document.getElementById("buy_spell_sound").load();
+      document.getElementById("buy_spell_sound").play();
+      document.getElementById("fear_button").className = "spell_button_after fear_button"
+      document.getElementById("fear_button").onclick = "";
+      document.getElementById("fear_button").style.opacity = "50%";
+      spellsBought[2] = true;
+    }
+    else
+    {
+      document.getElementById("cantAfford").load();
+      document.getElementById("cantAfford").play();
+    }
   }
   function spellFireball()
   {
-    document.getElementById("buy_spell_sound").load();
-    document.getElementById("buy_spell_sound").play();
-    document.getElementsByClassName("spell_button")[3].style.display = "none";
-    spellsBought[3] = true;
+    if(xp >= 15)
+    {
+      xp -= 15;
+      document.getElementById("xp_amount").innerText = xp.toFixed(2);
+      document.getElementById("buy_spell_sound").load();
+      document.getElementById("buy_spell_sound").play();
+      document.getElementById("fireball_button").className = "spell_button_after fireball_button"
+      document.getElementById("fireball_button").onclick = "";
+      document.getElementById("fireball_button").style.opacity = "50%";
+      spellsBought[3] = true;
+    }
+    else
+    {
+      document.getElementById("cantAfford").load();
+      document.getElementById("cantAfford").play();
+    }
   }
   function spellToxicbolt()
   {
-    document.getElementById("buy_spell_sound").load();
-    document.getElementById("buy_spell_sound").play();
-    document.getElementsByClassName("spell_button")[4].style.display = "none";
-    spellsBought[4] = true;
+    if(xp > 10)
+    {
+
+      document.getElementById("buy_spell_sound").load();
+      document.getElementById("buy_spell_sound").play();
+      document.getElementById("toxicbolt_button").className = "spell_button_after toxicbolt_button"
+      document.getElementById("toxicbolt_button").onclick = "";
+      document.getElementById("toxicbolt_button").style.opacity = "50%";
+      spellsBought[4] = true;
+    }
+    else
+    {
+      document.getElementById("cantAfford").load();
+      document.getElementById("cantAfford").play();
+    }
   }
 }
 
@@ -960,8 +1048,57 @@ function creditsGame()
 
 function showSkillsMenu()
 {
+  if(healthAmount > 0)
+  {
 
+    document.getElementById("book_use").src = "assets/Audio/Fx/bookOpen.mp3";
+    document.getElementById("book_use").load();
+    document.getElementById("book_use").play();
+    
+    game.scene.scenes[currentStage - 1].scene.pause();
+    game.scene.scenes[currentStage - 1].scene.launch('PauseMenu');
+    document.getElementById("blackout").style.display = "block";
+    document.getElementById("skill_book_video").currentTime = 0;
+    document.getElementById("skill_book_video").style.display = "block";
+    document.getElementById("skill_book_video").play();
+    document.getElementById("skill_book").style.zIndex = 7;
+    document.getElementById("skill_book").onclick = () =>
+    {
+      hideSkillsMenu();
+    }
+    setTimeout( ()=>
+    {
+      if(document.getElementById("skill_book_video").style.display != "none")
+      {
+        document.getElementById("spell_buttons").style.display = "block";
+      }
+    }, 1300);
+  } 
 }
 
+function hideSkillsMenu()
+{
+  document.getElementById("spell_buttons").style.display = "none";
+  document.getElementById("book_use").src = "assets/Audio/Fx/bookClose.mp3";
+  document.getElementById("book_use").load();
+  document.getElementById("book_use").play();
+
+  document.getElementById("skill_book_video").style.margin = "0px 10vw 0vw 130vw";
+  document.getElementById("skill_book_video").currentTime = 0;
+  setTimeout( ()=>
+  {
+    document.getElementById("blackout").style.display = "none";
+    document.getElementById("skill_book_video").currentTime = 0;
+    document.getElementById("skill_book_video").style.display = "none";
+    document.getElementById("skill_book_video").style.margin = "0px 10vw 0vw 30vw";
+  }, 300);
+  document.getElementById("skill_book").style.zIndex = 5;
+  document.getElementById("skill_book_video").play();
+  document.getElementById("skill_book").onclick = () =>
+  {
+    showSkillsMenu();
+  }
+
+}
 
 /* - - - - - - - - - - MAIN / GAME MENU METHODS - - - - - - - - - - */
