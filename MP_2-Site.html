@@ -18,6 +18,8 @@
         <audio id="buy_spell_sound" src="assets/Audio/Fx/spellBuySound.mp3" type="audio/mpeg"></audio>
         <audio id="book_use" src="assets/Audio/Fx/bookOpen.mp3" type="audio/mpeg"></audio>
         <audio id="cantAfford" src="assets/Audio/Fx/iCantAffordThat.mp3" type="audio/mpeg"></audio>
+        <audio id="errorSpeech" src="assets/Audio/Fx/cantUseThatYet.mp3" type="audio/mpeg"></audio>
+        <audio id="errorSpeechOom" src="assets/Audio/Fx/oom1.mp3" type="audio/mpeg"></audio>
         <!-- <div id="stage_number" class="stage_number">0</div> -->
         <div id="site_content" class="site_content">
 
@@ -37,11 +39,11 @@
                         <div class="options_section_title">Cheats</div>
                         <div class="options_row_title_cheat">Off On</div>
                         <label class="options_row_text">Invincibility:</label>
-                        <input class="radio_button" type="radio" name="invincibility" value="off" checked>
+                        <input class="radio_button" type="radio" name="invincibility" value="off">
                         <input class="radio_button" type="radio" name="invincibility" value="on">
 
                         <label class="options_row_text">Unlimited xp:</label>
-                        <input class="radio_button" type="radio" name="experience" value="off" checked>
+                        <input class="radio_button" type="radio" name="experience" value="off">
                         <input class="radio_button" type="radio" name="experience" value="on">
                     </div>
 
@@ -53,9 +55,9 @@
                     </div>
 
                     <img id="game_menu_button_start" class="game_menu_button game_menu_button_start" src="assets/GameMenu/ButtonStartGame-min.png" onclick="startMenuButtonsChoice('startGameButton')">
-                    <img id="game_menu_button_options" class="game_menu_button game_menu_button_options" src="assets/GameMenu/ButtonOptions-min.png" onclick="startMenuButtonsChoice('optionsButton')"">
-                    <img id="game_menu_button_quit" class="game_menu_button game_menu_button_quit" src="assets/GameMenu/ButtonCredits-min.png" onclick="startMenuButtonsChoice('creditsButton')"">
-                    <img id="game_menu_button_return" class="game_menu_button game_menu_button_return" src="assets/GameMenu/ButtonReturn-min.png" onclick="startMenuButtonsChoice('returnButton')"">
+                    <img id="game_menu_button_options" class="game_menu_button game_menu_button_options" src="assets/GameMenu/ButtonOptions-min.png" onclick="startMenuButtonsChoice('optionsButton')">
+                    <img id="game_menu_button_quit" class="game_menu_button game_menu_button_quit" src="assets/GameMenu/ButtonCredits-min.png" onclick="startMenuButtonsChoice('creditsButton')">
+                    <img id="game_menu_button_return" class="game_menu_button game_menu_button_return" src="assets/GameMenu/ButtonReturn-min.png" onclick="startMenuButtonsChoice('returnButton')">
                 </div>
                 <img id="game_menu_frame" class="game_menu_frame" src="assets/GameMenu/PauseMenuUI-min.png">
             </div>
@@ -67,13 +69,14 @@
             <div id="xp_amount" class="xp_amount">0</div>
             <div class="left_interface">
                 <img id="health_bar" class="health_bar" src="assets/HpBars/hpBar100.jpg">
-                <label id="health_bar_amount" class="health_bar_amount">100/100</label>
+                <label id="health_bar_amount" class="health_bar_amount">100.0/100</label>
                 <img id="mana_bar" class="mana_bar" src="assets/ManaBar/manaBar100.jpg">
-                <label id="mana_bar_amount" class="mana_bar_amount">100/100</label>
+                <label id="mana_bar_amount" class="mana_bar_amount">100.0/100</label>
                 <div class="left_interface_buttons">
                     <img id="skill_book" class="skill_book" src="assets/Icons/bookSkills.png" onclick="showSkillsMenu()">
                     <img class="health_potion" src="assets/Icons//healthPotion.png" onclick="restoreHp()">
                     <img class="mana_potion" src="assets/Icons/manaPotion.png" onclick="restoreMana()">
+                    <img id="selected_spell" class="selected_spell" src="assets/Icons/FireballIcon.jpg">
                 </div>
             </div>
             <div class="game_window" id="game"></div>
@@ -104,7 +107,7 @@
             <label for="fear_button" class="fear_button_label">Strikes fear in the enemy, disorienting for 4 sec.</label>
 
             <img id="fireball_button" class="spell_button fireball_button" src="assets/Icons/FireballIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFireball')">
-            <label for="fireball_button" class="fireball_button_label">Throws a fiery ball that causes fire damage.</label>
+            <label for="fireball_button" class="fireball_button_label">Throws a fiery ball that causes fire damage. Upgrade: explosion on impact.</label>
 
             <img id="toxicbolt_button" class="spell_button toxicbolt_button" src="assets/Icons/ToxicBoltIcon.jpg" onclick="interfaceButtonsFunctionalities('spellToxicbolt')">
             <label for="toxicbolt_button" class="toxicbolt_button_label">Unleashes a devastating toxic bolt that deals nature damage. Can cut through creatures.</label>

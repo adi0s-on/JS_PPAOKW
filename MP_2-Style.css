@@ -159,6 +159,14 @@ body
     transition-duration: 0.2s;
 }
 
+.selected_spell
+{
+    width: 9vw;
+    margin: 6vh 0px 0px 4vh;
+    opacity: 70%;
+    display: none;
+}
+
 .skill_book
 {
     position: absolute;
