@@ -1,11 +1,22 @@
 /*
 TODOLIST
-- wszystkie spelle
-  - zbieranie kasy i hp mp
-- kolizje
-- xp
-- wiecej stage? moze 
-- animacja dialog
+
+- xp z mobkow i kupowaie
+- typy potworoww
+- rozne stage
+- dialog? 
+- potiony 
+- dzwieki i muzyka 
+- fale mobków
+
+- fireball
+
+HP CHART
+skeleton 100
+phantom 150
+lich 200
+demon 300 
+
 */
 
 
@@ -13,14 +24,15 @@ var healthMain = 100; let manaMain = 100;
 
 //these are used when player restarts stage
 var healthSave, xpSave;
-var spellsSave = [true, true, true, true, true];
+var spellsSave = [false, false, false, false, false];
 
 //main variables of user stats
 var xp = 150;
 var healthAmount = healthMain; var manaAmount = manaMain;
-var spellsBought = [true, true, true, true, true]; //array that holds information about which spells have been purchased
+var spellsBought = [false, false, false, false, false]; //array that holds information about which spells have been purchased
 var currentStage = 0;
 
+var spellInterval = 0;
 var oomSpeechSwitch = 1;
 
 //FIXME
@@ -55,6 +67,27 @@ class Skeleton
     this.health = health; this.drop = drop;
   }
 }
+class Phantom
+{
+  constructor(health, drop)
+  {
+    this.health = health; this.drop = drop;
+  }
+}
+class Lich
+{
+  constructor(health, drop)
+  {
+    this.health = health; this.drop = drop;
+  }
+}
+class Demon
+{
+  constructor(health, drop)
+  {
+    this.health = health; this.drop = drop;
+  }
+}
 
 
 
@@ -79,96 +112,22 @@ function startGame()
     //preload needed images and sfx files
     preload: function()
     {
-      this.load.crossOrigin = 'anonymous';
-      this.load.spritesheet('playerUp', 'assets/PlayerBody/BodyPlayerUp.png', { frameWidth: 100, frameHeight: 100});
-      this.load.spritesheet('playerDown', 'assets/PlayerBody/BodyPlayerDown.png', { frameWidth: 100, frameHeight: 100});
-      this.load.spritesheet('playerLeft', 'assets/PlayerBody/BodyPlayerLeft.png', { frameWidth: 100, frameHeight: 100});
-      this.load.spritesheet('playerRight', 'assets/PlayerBody/BodyPlayerRight.png', { frameWidth: 100, frameHeight: 100});
-      this.load.spritesheet('playerRunning', 'assets/PlayerBody/BodyPlayerRunning.png', { frameWidth: 100, frameHeight: 100});
-      this.load.image('deadPlayer', 'assets/PlayerBody/DeadBodyPlayer.png');
-      
-      this.load.spritesheet('skeletonAnimation', 'assets/VariousAnimations/skeletonAnimation.png', { frameWidth: 100, frameHeight: 100});
-      
-      this.load.spritesheet('toxicboltAnimation', 'assets/VariousAnimations/toxicboltAnimation2.png', { frameWidth: 100, frameHeight: 100});
-      this.load.spritesheet('fireballAnimation', 'assets/VariousAnimations/fireballAnimation.png', { frameWidth: 75, frameHeight: 100});
-      this.load.spritesheet('blinkAnimation', 'assets/VariousAnimations/blinkAnimation.png', { frameWidth: 87.6, frameHeight: 100});
-
-      this.load.image('background', 'assets/Backgrounds/Background1.jpg');
-      this.load.image('restartQuestionMenu', 'assets/GameMenu/MenuPopup.png');
-      this.load.image('buttonSmallYes', 'assets/GameMenu/ButtonSmallYes.png');
-      this.load.image('buttonSmallNo', 'assets/GameMenu/ButtonSmallNo.png');
-
+      currentStage = 1;
+      loadSpritesAndAudio(currentStage);
     },
   
     //launches on stage creation
     create: function()
     {
-      currentStage = 1;
+      //FIXME
+      returnPlayerStatsWhenRestart();
+      createAnimationsAndAudio(currentStage); //create every animation for this stage
+
       backgroundImage = this.add.image(987.5, 620, 'background'); //background image set
       backgroundImage.displayWidth = 1975;
       backgroundImage.displayHeight  = 1240;
 
-      //FIXME
-      returnPlayerStatsWhenRestart();
-
-
-      //animations creating
-      this.anims.create({
-        key: 'up', 
-        frames: this.anims.generateFrameNumbers('playerUp', { start: 0, end: 34}), 
-        frameRate: 11,
-        repeat: -1
-      });
-      this.anims.create({
-        key: 'down', 
-        frames: this.anims.generateFrameNumbers('playerDown', { start: 0, end: 34}), 
-        frameRate: 11,
-        repeat: -1
-      });
-      this.anims.create({
-        key: 'left', 
-        frames: this.anims.generateFrameNumbers('playerLeft', { start: 0, end: 34}), 
-        frameRate: 11,
-        repeat: -1
-      });
-      this.anims.create({
-        key: 'right', 
-        frames: this.anims.generateFrameNumbers('playerRight', { start: 0, end: 34}), 
-        frameRate: 11,
-        repeat: -1
-      });
-      this.anims.create({
-        key: 'running',
-        frames: this.anims.generateFrameNumbers('playerRunning', { start: 0, end: 6}),
-        frameRate: 8,
-        repeat: -1
-      })
-      this.anims.create({
-        key: 'fireball',
-        frames: this.anims.generateFrameNumbers('fireballAnimation', { start: 0, end: 3}),
-        frameRate: 6,
-        repeat: -1
-      })
-      this.anims.create({
-        key: 'skeleton',
-        frames: this.anims.generateFrameNumbers('skeletonAnimation', { start: 0, end: 8}),
-        frameRate: 7,
-        repeat: -1
-      })
-      this.anims.create({
-        key: 'blink',
-        frames: this.anims.generateFrameNumbers('blinkAnimation', { start: 0, end: 4}),
-        frameRate: 30,
-        repeat: 0
-      })
-      this.anims.create({
-        key: 'blinkReversed',
-        frames: this.anims.generateFrameNumbers('blinkAnimation', { start: 4, end: 0}),
-        frameRate: 30,
-        repeat: 0
-      })
-  
-      player = this.physics.add.sprite(800, 500 , 'playerDown'); //player sprite set
+      player = this.physics.add.sprite(987.5, 620 , 'playerDown'); //player sprite set
       player.anims.play('up', true); //player animation
       player.displayWidth = 80; //player width
       player.displayHeight = 80; //player height
@@ -177,6 +136,12 @@ function startGame()
   
       let difficultyLeveles = document.getElementsByName("difficulty"); //skeleton spawn depends on difficulty set
   
+      //arrays of enemy objects
+      let enemiesSkeleton = [];
+      let enemiesLich = [];
+      let enemiesDemon = [];
+      let enemiesPhantom = [];
+
       let difficultyLevel = 0; //difficulty level set 
       for(let i = 0; i < difficultyLeveles.length; i++) //difficulty setting read
       {
@@ -187,59 +152,44 @@ function startGame()
         }
       }
   
+      //Create enemies
       for(let i = 0; i < (10 + 5 * difficultyLevel); i++)
       {
-          enemiesSkeleton[i] = new Skeleton(100, "coin1");
-          enemiesSkeletonSprites[i] = this.physics.add.sprite(200 + i*70,250, 'skeletonAnimation');
-          enemiesSkeletonSprites[i].anims.play('skeleton', true);
-          enemiesSkeletonSprites[i].displayHeight = 60;
-          enemiesSkeletonSprites[i].displayWidth = 60;
-          enemiesSkeletonSprites[i].body.collideWorldBounds = true;
+        enemiesSkeleton[i] = new Skeleton(100, "xpParticle");
+        enemiesSkeletonSprites[i] = this.physics.add.sprite(200 + i*70,250, 'skeletonAnimation');
+        enemiesSkeletonSprites[i].anims.play('skeleton', true);
+        enemiesSkeletonSprites[i].displayHeight = 55;
+        enemiesSkeletonSprites[i].displayWidth = 55;
+        enemiesSkeletonSprites[i].body.collideWorldBounds = true;
+        enemiesSkeletonSprites[i].body.immovable = false; 
       }
-      // enemiesSkeleton[2].drop ="healthDrop"
-      for(let i = 0; i < enemiesSkeletonSprites.length; i++)
+      enemiesSkeleton[Math.floor(Math.random()*(10 + 5 * difficultyLevel - 1))].drop ="healthDrop"//give to random skeleton a health potion
+      for(let i = 0; i < (2 + 1 * difficultyLevel); i++)
       {
-        for(let j = 0; j < enemiesSkeletonSprites.length; j++)
-        {
-          this.physics.add.collider(enemiesSkeletonSprites[i], enemiesSkeletonSprites[j], () =>
-          {
-            // enemiesSkeletonSprites[i].body.velocity.x = 0;
-            // enemiesSkeletonSprites[i].body.velocity.y = 0;
-            // enemiesSkeletonSprites[i].body.velocity.x += 20;
-            // enemiesSkeletonSprites[i].body.velocity.y += 20;
-          });
-          this.physics.add.overlap(enemiesSkeletonSprites[i], enemiesSkeletonSprites[j], () =>
-          {
-// FIXME
-            enemiesSkeletonSprites[i].x += 55;
-            enemiesSkeletonSprites[j].x -= 55;
-            enemiesSkeletonSprites[i].body.velocity.x = 0;
-            enemiesSkeletonSprites[i].body.velocity.y = 0;
-            enemiesSkeletonSprites[i].body.velocity.x += 20;
-            enemiesSkeletonSprites[i].body.velocity.y += 20;
-          });
-        }
+        enemiesPhantom[i] = new Phantom(160, "xpParticle");
+        enemiesPhantomSprites[i] = this.physics.add.sprite(200 + i*150,300, 'phantomAnimation');
+        enemiesPhantomSprites[i].anims.play('phantom', true);
+        enemiesPhantomSprites[i].displayHeight = 90;
+        enemiesPhantomSprites[i].displayWidth = 90;
+        enemiesPhantomSprites[i].body.collideWorldBounds = true;
+        enemiesPhantomSprites[i].body.immovable = false; 
       }
-      
-      this.physics.add.collider(enemiesSkeletonSprites, player, () =>
-      {
-        healthTemp-=0.1;
-        hurtPlayerSetHealth();
-      });
-      
-      cursors = this.input.keyboard.createCursorKeys(); // UP DOWN LEFT RIGHT SPACE bind kinda
-      wButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-      sButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-      aButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-      dButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+      enemiesPhantom[Math.floor(Math.random()*(2 + 1 * difficultyLevel - 1))].drop ="healthDrop"//give to random phantom a health potion
 
-      oneButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
-      twoButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
-      threeButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
-      eButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-      vButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.V); //escape button bind
+      //adding colission between enemy and player
+      enemiesAddColissionToPlayer(enemiesSkeletonSprites, player, currentStage, 0.15);
+      enemiesAddColissionToPlayer(enemiesPhantomSprites, player, currentStage, 0.25);
+      
+      //adding collision between eachother
+      enemiesAddCollisionBetweenSameEnemies(enemiesSkeletonSprites, currentStage);
+      enemiesAddCollisionBetweenSameEnemies(enemiesPhantomSprites, currentStage);
 
-      escapeButton = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC); //escape button bind
+      //merged arrays for easier movement and spell colission detection
+      enemies = enemiesSkeleton.concat(enemiesPhantom);
+      enemiesSprites = enemiesSkeletonSprites.concat(enemiesPhantomSprites);
+
+      //set keyboards keys
+      setKeyboardKeys(currentStage);
   
       this.scene.pause();
       document.getElementById("stage_1_music").pause();
@@ -250,102 +200,39 @@ function startGame()
     //runs with every frame of the game
     update: function() 
     {
+      //spell cooldown set, display set
+      if(spellInterval < 30)
+      {
+        document.getElementById("cooldown_bar_outline").style.display = "block";
+        document.getElementById("cooldown_bar_inside").style.width = (spellInterval * 3.33 + "%");
+        spellInterval++;
+      }
+      else
+      {
+        document.getElementById("cooldown_bar_outline").style.display = "none";
+        document.getElementById("cooldown_bar_inside").style.width = "0%";
+      }
+
+      //if player mana is below 100 then add 0.3, else dont 
       if(manaTemp < 100)
       {
-        manaTemp += 0.15;
+        manaTemp += 0.3;
+        manaPlayerSetMana();
+      }
+      else 
+      {
+        manaTemp = 100;
         manaPlayerSetMana();
       }
       //check if player is still alive
       if(healthAmount < 0)
       {
-        healthAmount = 0;
-        document.getElementById("stage_1_music").src = "assets/Audio/Music/deadMusic.mp3";
-        document.getElementById("stage_1_music").load();
-        document.getElementById("stage_1_music").play();
-        
-
-        
-        document.getElementById("health_bar_amount").innerHTML = (healthAmount.toFixed(1) + "/" + healthMain);
-
-        playerDead = this.physics.add.image(player.x, player.y, 'deadPlayer');
-        playerDead.displayHeight = player.displayHeight + 30;
-        playerDead.displayWidth = player.displayWidth + 30;
-        player.disableBody(false, true);
-
-        restartMenu = this.add.image(game.canvas.width/2, game.canvas.height/2, 'restartQuestionMenu');
-        restartMenu.displayWidth = 900;
-        restartMenu.displayHeight = 300;
-
-        restartButtonYes = this.add.image(game.canvas.width/2 - 200, game.canvas.height/2 + 25, 'buttonSmallYes').setInteractive();
-        restartButtonYes.displayWidth = 340;
-        restartButtonYes.displayHeight = 100;
-        restartButtonYes.on('pointerdown', function(event)
-        {
-          document.getElementById("stage_1_music").src = "assets/Audio/Music/stage1Music.mp3";
-          document.getElementById("stage_1_ambience").src = "";
-          document.getElementById("stage_1_ambience").src = "assets/Audio/Music/stage1Ambience.mp3";
-          // document.getElementById("stage_1_ambience").load();
-          healthAmount = 100;
-          healthTemp = 100;
-          document.getElementById("health_bar").src = "assets/HpBars/hpBar100.jpg";
-          document.getElementById("health_bar_amount").innerHTML = (healthTemp.toFixed(1) + "/" + healthMain);
-          game.scene.scenes[0].scene.restart();
-        });
-
-        restartButtonYes.on('pointerover', function(event)
-        {
-          
-        });
-
-        restartButtonNo = this.add.image(game.canvas.width/2 + 200, game.canvas.height/2 + 25, 'buttonSmallNo').setInteractive();
-        restartButtonNo.displayWidth = 340;
-        restartButtonNo.displayHeight = 100;
-        restartButtonNo.on('pointerdown', function (event)
-        {
-          location.reload();
-        });
+        playerDied(currentStage);
       }
   
-      //move skeletons
-      for(let i = 0; i < enemiesSkeletonSprites.length; i++)
-      {
-        enemiesSkeletonSprites[i].body.velocity.x=0;
-        enemiesSkeletonSprites[i].body.velocity.y=0;
-       
-        xDifference = player.x - enemiesSkeletonSprites[i].x;
-        yDifference = player.y - enemiesSkeletonSprites[i].y;
-  
-        let c = Math.sqrt((xDifference*xDifference)+(yDifference*yDifference));
-        let sina = Math.abs(xDifference)/c;
-        let sinb = Math.abs(yDifference)/c;
-        
-        if(player.x > enemiesSkeletonSprites[i].x)
-        {
-          if(player.y < enemiesSkeletonSprites[i].y)
-          {
-            enemiesSkeletonSprites[i].body.velocity.setTo(sina * 100, sinb * (-100));
-            enemiesSkeletonSprites[i].angle = 90 * sina;
-          }
-          else
-          {
-            enemiesSkeletonSprites[i].body.velocity.setTo(sina * 100, sinb * 100);
-            enemiesSkeletonSprites[i].angle = 90 * sinb + 90;
-          }
-        }
-        if(player.x < enemiesSkeletonSprites[i].x)
-        {
-          if(player.y > enemiesSkeletonSprites[i].y)
-          {
-            enemiesSkeletonSprites[i].body.velocity.setTo(sina * (-100), sinb * 100);
-            enemiesSkeletonSprites[i].angle = 360 - (90 * sinb + 90);
-          }
-          else
-          {
-            enemiesSkeletonSprites[i].body.velocity.setTo(sina * (-100), sinb * (-100));
-            enemiesSkeletonSprites[i].angle = 360 - (90 * sina);
-          }  
-        }
-      }
+      //move enemies
+      enemiesMove(enemiesSkeletonSprites, player, 100);
+      enemiesMove(enemiesPhantomSprites, player, 160);
 
       keyboardButtonsFunctionalities();
   
@@ -389,6 +276,8 @@ function startGame()
     //launches on stage creation
     create: function()
     {
+      document.getElementById("cooldown_bar_outline").style.display = "none";
+
       document.getElementById("stage_1_ambience").volume = "0.25"; //music volume set
       document.getElementById("stage_1_music").volume = "0.2"; //music volume set
       document.getElementById("stage_1_music").pause();
@@ -410,7 +299,6 @@ function startGame()
       {
         if(document.getElementById("spell_buttons").style.display != "block")
         {
-          // console.log("Game resumed");
           escapeButtonMenuSwitch = true;
           backgroundPause.destroy();
           pauseMenuTile.destroy();
@@ -473,6 +361,7 @@ function startGame()
 
   /* - - - - - - - - - - GAME METHODS - - - - - - - - - - */
 
+  /* -- gameplay set -- */
   function keyboardButtonsFunctionalities()
   {
     player.body.velocity.x = 0; player.body.velocity.y = 0;
@@ -636,64 +525,62 @@ function startGame()
     {     
       if(!vSwitch) //Pressing V activates teleport only once because of this.
       {
-        if(spellsBought[0] != true)
-        {
-          document.getElementById("errorSpeech").currentTime = 0;
-          document.getElementById("errorSpeech").play();
-        }
-        else
+        spellSelect("blink");
+        if(spellsBought[0] == true)
         {
           if(manaTemp >= 30)
           {
+            if(spellInterval >= 30)
+            {      
+              spellInterval = 0;
+              manaTemp -= 30;
+              manaPlayerSetMana();
+              let directionX = 0; 
+              let directionY = 0; 
+              if(player.body.velocity.x == 200)
+              {
+                player.body.x +=160;
+                directionX = -160
+                // blink2.body.x = player.body.x;
+              }      
+              if(player.body.velocity.y == 200)
+              {
+                player.body.y +=100;
+                directionY = -100
+                // blink2.body.y = player.body.y;
 
-          
-            manaTemp -= 30;
-            manaPlayerSetMana();
-            let directionX = 0; 
-            let directionY = 0; 
-            if(player.body.velocity.x == 200)
-            {
-              player.body.x +=160;
-              directionX = -160
-              // blink2.body.x = player.body.x;
-            }      
-            if(player.body.velocity.y == 200)
-            {
-              player.body.y +=100;
-              directionY = -100
-              // blink2.body.y = player.body.y;
+              }
+              if(player.body.velocity.x == -200)
+              { 
+                player.body.x -=160; 
+                directionX = 160
+                // blink2.body.x = player.body.x;
 
+              }
+              if(player.body.velocity.y == -200)
+              { 
+                player.body.y -=100;
+                directionY = 100
+                // blink2.body.y = player.body.y;
+              }
+              blink = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x, player.y, 'blinkAnimation');
+              blink.anims.play('blink', true); //player animation
+              blink.displayHeight = player.displayHeight;
+              blink.displayWidth = player.displayWidth;
+              blink.on('animationcomplete', () => 
+              {
+                blink.disableBody(true, true);
+              });
+
+              blink2 = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x - directionX, player.y - directionY, 'blinkAnimation');
+              blink2.anims.play('blinkReversed', true); //player animation
+              blink2.displayHeight = player.displayHeight;
+              blink2.displayWidth = player.displayWidth;
+              blink2.on('animationcomplete', () => 
+              {
+                blink2.disableBody(true, true);
+              });
             }
-            if(player.body.velocity.x == -200)
-            { 
-              player.body.x -=160; 
-              directionX = 160
-              // blink2.body.x = player.body.x;
-
-            }
-            if(player.body.velocity.y == -200)
-            { 
-              player.body.y -=100;
-              directionY = 100
-              // blink2.body.y = player.body.y;
-            }
-            blink = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x, player.y, 'blinkAnimation');
-            blink.anims.play('blink', true); //player animation
-            blink.displayHeight = player.displayHeight;
-            blink.displayWidth = player.displayWidth;
-            blink.on('animationcomplete', () => 
-            {
-              blink.disableBody(true, true);
-            });
-
-            blink2 = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x - directionX, player.y - directionY, 'blinkAnimation');
-            blink2.anims.play('blinkReversed', true); //player animation
-            blink2.displayHeight = player.displayHeight;
-            blink2.displayWidth = player.displayWidth;
-            blink2.on('animationcomplete', () => 
-            {
-              blink2.disableBody(true, true);
-            });
           }
           else
           {
@@ -708,92 +595,76 @@ function startGame()
       vSwitch = false;
     }
   
-    if(cursors.space.isDown)
+    if(cursors.space.isDown) //on space press down
     {
-      if(!attackSwitch)
+      if(!attackSwitch) // player can only attack one per click
       {
-        switch(equippedSpell)
+        switch(equippedSpell) //switch that casts equipped spell
         {
           case 'fireball':
           {
             if(manaTemp >= 15)
             {
-              manaTemp -=15;
-              manaPlayerSetMana();
-              fireball = game.scene.scenes[currentStage - 1].physics.add.sprite(0, 0, 'fireballAnimation');
-              fireball.anims.play('fireball', true); //fireball animation
-              fireball.displayWidth = 30; fireball.displayHeight = 50;
-              switch(playerFacingDirection)
+              if(spellInterval >= 0)
               {
-                case "Up":
-                {
-                  fireball.x = player.x; fireball.y = player.y - 50;
-                  fireball.angle = 0;
-                  fireball.body.velocity.y = -350;
-                  break;
-                }
-                case "UpRight":
-                {
-                  fireball.x = player.x + 35; fireball.y = player.y - 50;
-                  fireball.angle = 45;
-                  fireball.body.velocity.y = -350;
-                  fireball.body.velocity.x = 350;
-                  break;
-                }
-                case "UpLeft":
-                {
-                  fireball.x = player.x - 35; fireball.y = player.y - 50;
-                  fireball.angle = 315;
-                  fireball.body.velocity.y = -350;
-                  fireball.body.velocity.x = -350;
-                  break;
-                }
-                case "Down":
-                {
-                  fireball.x = player.x; fireball.y = player.y + 50;
-                  fireball.angle = 180;
-                  fireball.body.velocity.y = 350;
-                  break;
-                }
-                case "DownRight":
-                {
-                  fireball.x = player.x + 35; fireball.y = player.y + 50;
-                  fireball.angle = 135;
-                  fireball.body.velocity.y = 350;
-                  fireball.body.velocity.x = 350;
-                  break;
-                }
-                case "DownLeft":
-                {
-                  fireball.x = player.x - 35; fireball.y = player.y + 50;
-                  fireball.angle = 225;
-                  fireball.body.velocity.y = 350;
-                  fireball.body.velocity.x = -350;
-                  break;
-                }
-                case "Left":
-                {
-                  fireball.x = player.x - 35; fireball.y = player.y;
-                  fireball.angle = 270;
-                  fireball.body.velocity.x = -350;
-                  break;
-                }
-                case "Right":
-                {
-                  fireball.x = player.x + 35; fireball.y = player.y;
-                  fireball.angle = 90;
-                  fireball.body.velocity.x = 350;
-                  break;
-                }
-              }
+                spellInterval = 0;
+                manaTemp -=15;
+                manaPlayerSetMana();
 
-              for(let i = 0; i < enemiesSkeletonSprites.length; i++)
-              {
-                game.scene.scenes[currentStage - 1].physics.add.overlap(fireball, enemiesSkeletonSprites[i], () => 
+                let fireball = game.scene.scenes[currentStage - 1].physics.add.sprite(0, 0, 'fireballAnimation');
+                fireball.anims.play('fireball', true); //fireball animation
+                fireball.displayWidth = 30; fireball.displayHeight = 50;
+                spellMovement(playerFacingDirection, fireball, player, 350);
+
+                if(enemiesSprites.length != 0)
                 {
-                  fireball.disableBody(true, true); //FIXME
-                  enemiesSkeletonSprites[i].disableBody(true, true);
-                });
+                  for(let i = 0; i < enemies.length; i++)
+                  {
+                    game.scene.scenes[currentStage - 1].physics.add.overlap(fireball, enemiesSprites[i], () => 
+                    {
+                      fireball.disableBody(true, true); //FIXME
+                      enemies[i].health -= 50;
+                      addDmgText(enemiesSprites[i].body.x, enemiesSprites[i].body.y, currentStage, "-50");
+                      if(enemies[i].health <= 0)
+                      {
+                        let enemyX = enemiesSprites[i].body.x;
+                        let enemyY = enemiesSprites[i].body.y;
+                        let enemyWidth = enemiesSprites[i].displayWidth;
+                        let enemyHeight = enemiesSprites[i].displayHeight;
+                        enemiesSprites[i].disableBody(true, true);
+
+                        if(enemies[i].drop == "xpParticle")
+                        {
+                          xpParticle = game.scene.scenes[currentStage - 1].add.sprite(enemyX + enemyWidth/2, enemyY + enemyHeight/2, 'expParticle');
+                          xpParticle.anims.play('exp', true);
+                          xpParticle.displayWidth = 20; xpParticle.displayHeight = 20;
+  
+                          //FIXME xp podnoszenie
+                          game.scene.scenes[currentStage - 1].physics.add.overlap(player, xpParticle, () => 
+                          {
+                            xpParticle.disableBody(true, true);
+                            xp += 0.5;
+                            console.log("XDD")
+                            document.getElementById("xp_amount").innerHTML = xp.toFixed(1);
+                          });
+                        }
+                        else
+                        {
+                          var hpPotion = game.scene.scenes[currentStage - 1].add.sprite(enemyX + enemyWidth/2, enemyY + enemyHeight/2, 'hpPotion');
+                          hpPotion.anims.play('hp', true);
+                          hpPotion.displayWidth = 40; hpPotion.displayHeight = 40;
+                          game.scene.scenes[currentStage - 1].physics.add.overlap(player, hpPotion, () => 
+                          {
+                            hpPotion.disableBody(true, true);
+                            healthTemp += 20;
+                            hurtPlayerSetHealth();
+                            console.log("XDD")
+                          });
+                        }
+                      }
+                    });
+                  }
+                }
               }
             }
             else
@@ -804,13 +675,154 @@ function startGame()
           }
           case 'toxicbolt':
           {
-            console.log("toxicbolt");
+            if(manaTemp >= 25)
+            {
+              if(spellInterval >= 30)
+              {
+                spellInterval = 0;
+                manaTemp -= 25;
+                manaPlayerSetMana();
+
+                let toxicbolt = game.scene.scenes[currentStage - 1].physics.add.sprite(0, 0, 'toxicboltAnimation');
+                toxicbolt.anims.play('toxicbolt', true);
+                toxicbolt.displayWidth = 40; toxicbolt.displayHeight = 70;
+                spellMovement(playerFacingDirection, toxicbolt, player, 500, false);
+
+                if(enemiesSprites.length != 0)
+                {
+                  for(let i = 0; i < enemiesSprites.length; i++)
+                  {
+                    game.scene.scenes[currentStage - 1].physics.add.overlap(toxicbolt, enemiesSprites[i], () => 
+                    {
+                      enemies[i].health -= 2.5;
+                      if(dmgTextCount <= 5)
+                      {
+                        dmgTextCount++; addDmgText(enemiesSprites[i].body.x, enemiesSprites[i].body.y, currentStage, "-2.5");
+                      }
+
+                      if(enemies[i].health <= 0)
+                      {
+                        let enemyX = enemiesSprites[i].body.x;
+                        let enemyY = enemiesSprites[i].body.y;
+                        let enemyWidth = enemiesSprites[i].displayWidth;
+                        let enemyHeight = enemiesSprites[i].displayHeight;
+                        enemiesSprites[i].disableBody(true, true);
+
+                        if(enemies[i].drop == "xpParticle")
+                        {
+                          let xpParticle = game.scene.scenes[currentStage - 1].add.sprite(enemyX + enemyWidth/2, enemyY + enemyHeight/2, 'expParticle');
+                          xpParticle.anims.play('exp', true);
+                          xpParticle.displayWidth = 20; xpParticle.displayHeight = 20;
+  
+                          //FIXME xp podnoszenie
+                          game.scene.scenes[currentStage - 1].physics.add.overlap(player, xpParticle, () => 
+                          {
+                            xpParticle.disableBody(true, true);
+                            xp += 0.5;
+                            console.log("XDD")
+                            document.getElementById("xp_amount").innerHTML = xp.toFixed(1);
+                          });
+                        }
+                        else
+                        {
+                          let hpPotion = game.scene.scenes[currentStage - 1].add.sprite(enemyX + enemyWidth/2, enemyY + enemyHeight/2, 'hpPotion');
+                          hpPotion.anims.play('hp', true);
+                          hpPotion.displayWidth = 40; hpPotion.displayHeight = 40;
+                          game.scene.scenes[currentStage - 1].physics.add.overlap(player, hpPotion, () => 
+                          {
+                            hpPotion.disableBody(true, true);
+                            healthTemp += 20;
+                            hurtPlayerSetHealth();
+                            console.log("XDD")
+                          });
+                        }
+                      }
+                    });
+                  }
+                }
+              }
+            }
+            else
+            {
+              oomErrorSpeech();
+            }
             break;
           }
           case 'lightningbolt':
           {
-              
-            console.log("lightning");
+            if(manaTemp >= 80)
+            {
+              if(spellInterval >= 30)
+              {
+                spellInterval = 0;
+                manaTemp -= 80;
+                manaPlayerSetMana();
+                let lightning = game.scene.scenes[currentStage - 1].physics.add.sprite(0, 0, 'lightningboltAnimation')
+                lightning.anims.play('lightning', true);
+                lightning.displayWidth = 160; lightning.displayHeight = 300;
+                spellMovement(playerFacingDirection, lightning, player, 90, true);
+                lightning.on('animationcomplete', () => 
+                {
+                  lightning.disableBody(true, true);
+                });
+
+                if(enemiesSprites.length != 0)
+                {
+                  for(let i = 0; i < enemiesSprites.length; i++)
+                  {
+                    game.scene.scenes[currentStage - 1].physics.add.overlap(lightning, enemiesSprites[i], () => 
+                    {
+                      enemies[i].health -= 5.5;
+                      if(dmgTextCount <= 5)
+                      {
+                        dmgTextCount++; addDmgText(enemiesSprites[i].body.x, enemiesSprites[i].body.y, currentStage, "-5.5");
+                      }
+                      
+                      if(enemies[i].health <= 0)
+                      {
+                        let enemyX = enemiesSprites[i].body.x;
+                        let enemyY = enemiesSprites[i].body.y;
+                        let enemyWidth = enemiesSprites[i].displayWidth;
+                        let enemyHeight = enemiesSprites[i].displayHeight;
+                        enemiesSprites[i].disableBody(true, true);
+                        if(enemies[i].drop == "xpParticle")
+                        {
+                          let xpParticle = game.scene.scenes[currentStage - 1].add.sprite(enemyX + enemyWidth/2, enemyY + enemyHeight/2, 'expParticle');
+                          xpParticle.anims.play('exp', true);
+                          xpParticle.displayWidth = 20; xpParticle.displayHeight = 20;
+  
+                          //FIXME xp podnoszenie
+                          game.scene.scenes[currentStage - 1].physics.add.overlap(player, xpParticle, () => 
+                          {
+                            xpParticle.disableBody(true, true);
+                            xp += 0.5;
+                            console.log("XDD")
+                            document.getElementById("xp_amount").innerHTML = xp.toFixed(1);
+                          });
+                        }
+                        else
+                        {
+                          let hpPotion = game.scene.scenes[currentStage - 1].add.sprite(enemyX + enemyWidth/2, enemyY + enemyHeight/2, 'hpPotion');
+                          hpPotion.anims.play('hp', true);
+                          hpPotion.displayWidth = 40; hpPotion.displayHeight = 40;
+                          game.scene.scenes[currentStage - 1].physics.add.overlap(player, hpPotion, () => 
+                          {
+                            hpPotion.disableBody(true, true);
+                            healthTemp += 20;
+                            hurtPlayerSetHealth();
+                            console.log("XDD")
+                          });
+                        }
+                      }
+                    });
+                  }
+                }       
+              }
+            }
+            else 
+            {
+              oomErrorSpeech();
+            }
             break;
           }
         } 
@@ -828,6 +840,7 @@ function startGame()
       if(!oneButtonSwitch)
       {   
         spellSelect("fireball");
+        
         oneButtonSwitch = true;
       }
     }
@@ -867,6 +880,34 @@ function startGame()
       if(!eButtonSwitch)
       {   
         spellSelect("fear");
+        if(spellsBought[4] == true)
+        {
+          if(manaTemp >= 50)
+          {
+            if(spellInterval >= 30)
+            {
+              spellInterval = 0;
+              manaTemp -= 50;
+              manaPlayerSetMana();
+              fear = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x, player.y, 'fearAnimation');
+              fear.anims.play('fear', true); //player animation
+              fear.displayHeight = 300;
+              fear.displayWidth = 300;
+              fear.on('animationcomplete', () => 
+              {
+                fear.disableBody(true, true);
+              });
+              fearActive = true;
+              setTimeout(() => {
+                fearActive = false;
+              }, 4000);
+            }
+          }
+          else
+          {
+            oomErrorSpeech();
+          }
+        }
         eButtonSwitch = true;
       }
     }
@@ -876,6 +917,169 @@ function startGame()
     }
   }
   
+  function loadSpritesAndAudio(currentStage)
+  {
+    game.scene.scenes[currentStage - 1].load.crossOrigin = 'anonymous';
+    game.scene.scenes[currentStage - 1].load.spritesheet('playerUp', 'assets/PlayerBody/BodyPlayerUp.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('playerDown', 'assets/PlayerBody/BodyPlayerDown.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('playerLeft', 'assets/PlayerBody/BodyPlayerLeft.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('playerRight', 'assets/PlayerBody/BodyPlayerRight.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('playerRunning', 'assets/PlayerBody/BodyPlayerRunning.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.image('deadPlayer', 'assets/PlayerBody/DeadBodyPlayer.png');
+
+    game.scene.scenes[currentStage - 1].load.spritesheet('skeletonAnimation', 'assets/VariousAnimations/skeletonAnimation.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('phantomAnimation', 'assets/VariousAnimations/phantomAnimation.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('lichAnimation', 'assets/VariousAnimations/lichAnimation.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('demonAnimation', 'assets/VariousAnimations/demonAnimation.png', { frameWidth: 267.75, frameHeight: 200});
+
+    game.scene.scenes[currentStage - 1].load.spritesheet('toxicboltAnimation', 'assets/VariousAnimations/toxicboltAnimation2.png', { frameWidth: 100, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('fireballAnimation', 'assets/VariousAnimations/fireballAnimation.png', { frameWidth: 75, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('lightningboltAnimation', 'assets/VariousAnimations/lightningboltAnimation.png', { frameWidth: 52.9, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('blinkAnimation', 'assets/VariousAnimations/blinkAnimation.png', { frameWidth: 87.6, frameHeight: 100});
+    game.scene.scenes[currentStage - 1].load.spritesheet('fearAnimation', 'assets/VariousAnimations/fearAnimation.png', { frameWidth: 300, frameHeight: 300});
+
+    game.scene.scenes[currentStage - 1].load.spritesheet('expParticle', 'assets/VariousAnimations/experienceOrbAnimation.png', { frameWidth: 68, frameHeight: 68});
+    game.scene.scenes[currentStage - 1].load.spritesheet('hpPotion', 'assets/VariousAnimations/potionHealthAnimation.png', { frameWidth: 80, frameHeight: 80});
+
+    game.scene.scenes[currentStage - 1].load.image('background', 'assets/Backgrounds/Background1.jpg');
+    game.scene.scenes[currentStage - 1].load.image('restartQuestionMenu', 'assets/GameMenu/MenuPopup.png');
+    game.scene.scenes[currentStage - 1].load.image('buttonSmallYes', 'assets/GameMenu/ButtonSmallYes.png');
+    game.scene.scenes[currentStage - 1].load.image('buttonSmallNo', 'assets/GameMenu/ButtonSmallNo.png');
+  }
+
+  function createAnimationsAndAudio(currentStage)
+  {
+  //animations creating
+       //player -- -- --
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'up', 
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('playerUp', { start: 0, end: 34}), 
+        frameRate: 11,
+        repeat: -1
+      });
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'down', 
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('playerDown', { start: 0, end: 34}), 
+        frameRate: 11,
+        repeat: -1
+      });
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'left', 
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('playerLeft', { start: 0, end: 34}), 
+        frameRate: 11,
+        repeat: -1
+      });
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'right', 
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('playerRight', { start: 0, end: 34}), 
+        frameRate: 11,
+        repeat: -1
+      });
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'running',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('playerRunning', { start: 0, end: 6}),
+        frameRate: 8,
+        repeat: -1
+      })
+
+       //spells -- -- --
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'fireball',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('fireballAnimation', { start: 0, end: 3}),
+        frameRate: 6,
+        repeat: -1
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'toxicbolt',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('toxicboltAnimation', { start: 0, end: 3}),
+        frameRate: 9,
+        repeat: -1
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'lightning',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('lightningboltAnimation', { start: 0, end: 9}),
+        frameRate: 20,
+        repeat: 0
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'blink',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('blinkAnimation', { start: 0, end: 4}),
+        frameRate: 30,
+        repeat: 0
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'blinkReversed',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('blinkAnimation', { start: 4, end: 0}),
+        frameRate: 30,
+        repeat: 0
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'fear',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('fearAnimation', { start: 0, end: 6}),
+        frameRate: 6,
+        repeat: 0
+      })
+
+       //monsters -- -- --
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'skeleton',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('skeletonAnimation', { start: 0, end: 8}),
+        frameRate: 7,
+        repeat: -1
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'phantom',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('phantomAnimation', { start: 0, end: 8}),
+        frameRate: 7,
+        repeat: -1
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'lich',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('lichAnimation', { start: 0, end: 7}),
+        frameRate: 7,
+        repeat: -1
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'demon',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('demonAnimation', { start: 0, end: 11}),
+        frameRate: 6,
+        repeat: -1
+      })
+
+       //various -- -- --
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'exp',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('expParticle', { start: 0, end: 8}),
+        frameRate: 9,
+        repeat: -1
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'hp',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('hpPotion', { start: 0, end: 3}),
+        frameRate: 5,
+        repeat: -1
+      })
+  }
+
+  function setKeyboardKeys(currentStage)
+  {
+    cursors = game.scene.scenes[currentStage - 1].input.keyboard.createCursorKeys(); // UP DOWN LEFT RIGHT SPACE bind kinda
+    wButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    sButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    aButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+    dButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+    oneButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+    twoButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+    threeButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+    eButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    vButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.V); //escape button bind
+    escapeButton = game.scene.scenes[currentStage - 1].input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC); //escape button bind
+  }
+  /* -- gameplay set -- */
+
+
+  /* -- actions -- */
   //inform game when player was hurt, update health bar
   function hurtPlayerSetHealth()
   {
@@ -1000,10 +1204,328 @@ function startGame()
     }
   }
 
+  function playerDied(currentStage)
+  {
+    healthAmount = 0;
+    document.getElementById("stage_1_music").src = "assets/Audio/Music/deadMusic.mp3";
+    document.getElementById("stage_1_music").load();
+    document.getElementById("stage_1_music").play();
+    document.getElementById("health_bar_amount").innerHTML = (healthAmount.toFixed(1) + "/" + healthMain);
+
+    playerDead = game.scene.scenes[currentStage - 1].physics.add.image(player.x, player.y, 'deadPlayer');
+    playerDead.displayHeight = player.displayHeight + 30;
+    playerDead.displayWidth = player.displayWidth + 30;
+    player.disableBody(false, true);
+
+    restartMenu = game.scene.scenes[currentStage - 1].add.image(game.canvas.width/2, game.canvas.height/2, 'restartQuestionMenu');
+    restartMenu.displayWidth = 900;
+    restartMenu.displayHeight = 300;
+
+    restartButtonYes = game.scene.scenes[currentStage - 1].add.image(game.canvas.width/2 - 200, game.canvas.height/2 + 25, 'buttonSmallYes').setInteractive();
+    restartButtonYes.displayWidth = 340;
+    restartButtonYes.displayHeight = 100;
+    restartButtonYes.on('pointerdown', function(event)
+    {
+      healthAmount = 100; healthTemp = 100;
+      document.getElementById("stage_1_music").src = "assets/Audio/Music/stage1Music.mp3";
+      document.getElementById("stage_1_ambience").src = "";
+      document.getElementById("stage_1_ambience").src = "assets/Audio/Music/stage1Ambience.mp3";
+      document.getElementById("health_bar").src = "assets/HpBars/hpBar100.jpg";
+      document.getElementById("health_bar_amount").innerHTML = (healthTemp.toFixed(1) + "/" + healthMain);
+      game.scene.scenes[currentStage - 1].scene.restart();
+    });
+
+    //button restart no
+    restartButtonNo = game.scene.scenes[currentStage - 1].add.image(game.canvas.width/2 + 200, game.canvas.height/2 + 25, 'buttonSmallNo').setInteractive();
+    restartButtonNo.displayWidth = 340;
+    restartButtonNo.displayHeight = 100;
+    restartButtonNo.on('pointerdown', function (event)
+    {
+      location.reload();
+    });
+  }
+
+  function spellMovement(playerDirection, spellName, player, speed, lightning)
+  {
+    if(lightning)
+    {
+      switch(playerDirection)
+      {
+        case "Up":
+        {
+          spellName.x = player.x; spellName.y = player.y - player.displayHeight - 50;
+          spellName.angle = 0;
+          spellName.body.velocity.y = -speed;
+          break;
+        }
+        case "UpRight":
+        {
+          spellName.x = player.x + player.displayWidth + 50; spellName.y = player.y - player.displayHeight - 50;
+          spellName.angle = 45;
+          spellName.body.velocity.y = -speed;
+          spellName.body.velocity.x = speed;
+          break;
+        }
+        case "UpLeft":
+        {
+          spellName.x = player.x - player.displayWidth  - 50; spellName.y = player.y - player.displayHeight - 50;
+          spellName.angle = 315;
+          spellName.body.velocity.y = -speed;
+          spellName.body.velocity.x = -speed;
+          break;
+        }
+        case "Down":
+        {
+          spellName.x = player.x; spellName.y = player.y + player.displayHeight + 50;
+          spellName.angle = 180;
+          spellName.body.velocity.y = speed;
+          break;
+        }
+        case "DownRight":
+        {
+          spellName.x = player.x + player.displayWidth + 50; spellName.y = player.y + player.displayHeight + 50;
+          spellName.angle = 135;
+          spellName.body.velocity.y = speed;
+          spellName.body.velocity.x = speed;
+          break;
+        }
+        case "DownLeft":
+        {
+          spellName.x = player.x - player.displayWidth - 50; spellName.y = player.y + player.displayHeight + 50;
+          spellName.angle = 225;
+          spellName.body.velocity.y = speed;
+          spellName.body.velocity.x = -speed;
+          break;
+        }
+        case "Left":
+        {
+          spellName.x = player.x - player.displayWidth - 50; spellName.y = player.y;
+          spellName.angle = 270;
+          spellName.body.velocity.x = -speed;
+          break;
+        }
+        case "Right":
+        {
+          spellName.x = player.x + player.displayWidth + 50; spellName.y = player.y;
+          spellName.angle = 90;
+          spellName.body.velocity.x = speed;
+          break;
+        }
+      }
+    }
+    else
+    {
+      switch(playerDirection)
+      {
+        case "Up":
+        {
+          spellName.x = player.x; spellName.y = player.y - 50;
+          spellName.angle = 0;
+          spellName.body.velocity.y = -speed;
+          break;
+        }
+        case "UpRight":
+        {
+          spellName.x = player.x + 50; spellName.y = player.y - 50;
+          spellName.angle = 45;
+          spellName.body.velocity.y = -speed;
+          spellName.body.velocity.x = speed;
+          break;
+        }
+        case "UpLeft":
+        {
+          spellName.x = player.x - 50; spellName.y = player.y - 50;
+          spellName.angle = 315;
+          spellName.body.velocity.y = -speed;
+          spellName.body.velocity.x = -speed;
+          break;
+        }
+        case "Down":
+        {
+          spellName.x = player.x; spellName.y = player.y + 50;
+          spellName.angle = 180;
+          spellName.body.velocity.y = speed;
+          break;
+        }
+        case "DownRight":
+        {
+          spellName.x = player.x + 50; spellName.y = player.y + 50;
+          spellName.angle = 135;
+          spellName.body.velocity.y = speed;
+          spellName.body.velocity.x = speed;
+          break;
+        }
+        case "DownLeft":
+        {
+          spellName.x = player.x - 50; spellName.y = player.y + 50;
+          spellName.angle = 225;
+          spellName.body.velocity.y = speed;
+          spellName.body.velocity.x = -speed;
+          break;
+        }
+        case "Left":
+        {
+          spellName.x = player.x - 50; spellName.y = player.y;
+          spellName.angle = 270;
+          spellName.body.velocity.x = -speed;
+          break;
+        }
+        case "Right":
+        {
+          spellName.x = player.x + 50; spellName.y = player.y;
+          spellName.angle = 90;
+          spellName.body.velocity.x = speed;
+          break;
+        }
+      }
+    }
+  }
+
+  function enemiesMove(enemiesMoveSprites, player, speed)
+  {
+    if(!fearActive)
+    {
+      for(let i = 0; i < enemiesMoveSprites.length; i++)
+      {
+        enemiesMoveSprites[i].body.velocity.x=0;
+        enemiesMoveSprites[i].body.velocity.y=0;
+       
+        let xDifference = player.x - enemiesMoveSprites[i].x;
+        let yDifference = player.y - enemiesMoveSprites[i].y;
+  
+        let c = Math.sqrt((xDifference * xDifference) + (yDifference * yDifference));
+        let sina = Math.abs(xDifference) / c;
+        let sinb = Math.abs(yDifference) / c;
+        
+        if(player.x > enemiesMoveSprites[i].x)
+        {
+          if(player.y < enemiesMoveSprites[i].y)
+          {
+            enemiesMoveSprites[i].body.velocity.setTo(sina * speed, sinb * (-speed));
+            enemiesMoveSprites[i].angle = 90 * sina;
+          }
+          else
+          {
+            enemiesMoveSprites[i].body.velocity.setTo(sina * speed, sinb * speed);
+            enemiesMoveSprites[i].angle = 90 * sinb + 90;
+          }
+        }
+        if(player.x < enemiesMoveSprites[i].x)
+        {
+          if(player.y > enemiesMoveSprites[i].y)
+          {
+            enemiesMoveSprites[i].body.velocity.setTo(sina * (-speed), sinb * speed);
+            enemiesMoveSprites[i].angle = 360 - (90 * sinb + 90);
+          }
+          else
+          {
+            enemiesMoveSprites[i].body.velocity.setTo(sina * (-speed), sinb * (-speed));
+            enemiesMoveSprites[i].angle = 360 - (90 * sina);
+          }  
+        }
+      }
+    }
+    else
+    {
+      for(let i = 0; i < enemiesMoveSprites.length; i++)
+      {
+        let direction = Math.floor(Math.random()*(8 - 1)) + 1;
+        switch(direction)
+        {
+          case 1:
+          {
+            enemiesMoveSprites[i].body.velocity.x = 0;
+            enemiesMoveSprites[i].body.velocity.y = -speed / 2;
+            break;
+          }
+          case 2:
+          {
+            enemiesMoveSprites[i].body.velocity.x = speed / 2;
+            enemiesMoveSprites[i].body.velocity.y = -speed / 2;
+            break;
+          }
+          case 3:
+          {
+            enemiesMoveSprites[i].body.velocity.x = speed / 2;
+            enemiesMoveSprites[i].body.velocity.y = 0;
+            break;
+          }
+          case 4:
+          {
+            enemiesMoveSprites[i].body.velocity.x = speed / 2;
+            enemiesMoveSprites[i].body.velocity.y = speed / 2;
+            break;
+          }
+          case 5:
+          {
+            enemiesMoveSprites[i].body.velocity.x = 0;
+            enemiesMoveSprites[i].body.velocity.y = speed / 2;
+            break;
+          }
+          case 6:
+          {
+            enemiesMoveSprites[i].body.velocity.x = -speed / 2;
+            enemiesMoveSprites[i].body.velocity.y = speed / 2;
+            break;
+          }
+          case 7:
+          {
+            enemiesMoveSprites[i].body.velocity.x = -speed / 2;
+            enemiesMoveSprites[i].body.velocity.y = 0;
+            break;
+          }
+          case 8:
+          {
+            enemiesMoveSprites[i].body.velocity.x = -speed / 2;
+            enemiesMoveSprites[i].body.velocity.y = -speed / 2;
+            break;
+          }
+        }   
+      }
+    }
+  }
+
+  function enemiesAddCollisionBetweenSameEnemies(enemiesCollisionSprites, currentStage)
+  {
+    for(let i = 0; i < enemiesCollisionSprites.length; i++)
+    {
+      for(let j = 0; j < enemiesCollisionSprites.length; j++)
+      {
+        game.scene.scenes[currentStage - 1].physics.add.collider(enemiesCollisionSprites[i], enemiesCollisionSprites[j], () =>
+        {
+          // empty on puropse / i think so otherwise they overlap each other
+        });
+      }
+    }
+  }
+
+  function enemiesAddColissionBetweenDifferentEnemies(enemiesCollisionSpritesEnemy1, enemiesCollisionSpritesEnemy2, currentStage)
+  {
+    for(let i = 0; i < enemiesCollisionSpritesEnemy1.length; i++)
+    {
+      for(let j = 0; j < enemiesCollisionSpritesEnemy2.length; j++)
+      {
+        game.scene.scenes[currentStage - 1].physics.add.collider(enemiesCollisionSpritesEnemy1[i], enemiesCollisionSpritesEnemy2[j], () =>
+        {
+          // empty on puropse / i think so otherwise they overlap each other
+        });
+      }
+    }
+  }
+
+  function enemiesAddColissionToPlayer(enemiesCollisionSprites, player, currentStage, health)
+  {
+    game.scene.scenes[currentStage - 1].physics.add.collider(enemiesCollisionSprites, player, () =>
+    {
+      healthTemp -= health;
+      hurtPlayerSetHealth();
+    });
+  }
+
   function returnPlayerStatsWhenRestart()
   {
-    console.log(spellsBought);
-    console.log(spellsSave);
+    // console.log(spellsBought);
+    // console.log(spellsSave);
     if(spellsBought[0] != spellsSave[0])
     {
       document.getElementById("blink_button").className = "spell_button blink_button"
@@ -1054,10 +1576,73 @@ function startGame()
       document.getElementById("fear_button").style.opacity = "100%";
       spellsBought[4] = spellsSave[4];
     }
-    console.log(spellsBought);
-    console.log(spellsSave);
+    // console.log(spellsBought);
+    // console.log(spellsSave);
   }
 
+  function addDmgText(x, y, currentStage, damage)
+  {
+    let damageTxt = game.scene.scenes[currentStage - 1].add.text(x, y, damage, { fontFamily: 'Arial', fontSize: 39, color: '#b32d2d' });
+    damageTxt.setDepth(5);
+    let direction = Math.floor(Math.random()*(4 - 1)) + 1;
+    switch(direction)
+    {
+      case 1:
+      {
+        for(let i = 0; i < 6; i++)
+        {
+          moveDmgText(damageTxt, 2.5, -2.5, i);
+        }
+        break;
+      }
+      case 2:
+      {
+        for(let i = 0; i < 6; i++)
+        {
+          moveDmgText(damageTxt, 2.5, 2.5, i);
+        }
+        break;
+      }
+      case 3:
+      {
+        for(let i = 0; i < 6; i++)
+        {
+          moveDmgText(damageTxt, -2.5, 2.5, i);
+        }
+        break;
+      }
+      case 4:
+      {
+        for(let i = 0; i < 6; i++)
+        {
+          moveDmgText(damageTxt, 2.5, -2.5, i);
+        }
+        break;
+      }
+    }
+  }
+
+  function moveDmgText(dmgtext, x, y, i)
+  {
+    setTimeout( ()=>
+    {
+      dmgtext.x += x;
+      dmgtext.y += y;
+      if(i = 6)
+      {
+        setTimeout(() => 
+        {
+          if(dmgTextCount >= 0 && dmgTextCount < 7)
+          {
+            dmgTextCount--;
+          }
+          dmgtext.destroy();
+        }, 60 * (i + 1));
+      }
+    }, 60 * i);  
+  }
+
+  /* -- actions -- */
   /* - - - - - - - - - - GAME METHODS - - - - - - - - - - */
 
 
@@ -1084,11 +1669,19 @@ function startGame()
   };
 
   game = new Phaser.Game(config); //game object, most important
-  var enemiesSkeleton = [];
+
+  var enemiesSprites = [];
+  var enemies = [];
+
   var enemiesSkeletonSprites = [];
-  var enemiesLich = [];
-  var enemiesDemon = [];
-  var enemiesPhantom = [];
+  var enemiesLichSprites = [];
+  var enemiesDemonSprites = [];
+  var enemiesPhantomSprites = [];
+  
+  dmgTextCount = 0;
+  var fearActive = false;
+
+
   var player, cursors;
   var vSwitch, escapeButtonSwitch, escapeButtonMenuSwitch, fireballSwitch, lightningSwitch, topicboltSwitch, fearSwitch, attackSwitch;
   var oneButtonSwitch = true, twoButtonSwitch = true, threeButtonSwitch = true, eButtonSwitch = true
@@ -1445,7 +2038,7 @@ function spellSelect(spellName)
   function spellSelectCosmetic()
   {
     document.getElementById("selected_spell").style.display = "block";
-    document.getElementById("selected_spell").style.margin = "6vh 0px 0px 4vh";
+    document.getElementById("selected_spell").style.margin = "6vh 0px 0px 4vw";
     setTimeout( ()=>
     {
       document.getElementById("selected_spell").style.display = "none";
@@ -1454,6 +2047,21 @@ function spellSelect(spellName)
   }
   switch(spellName)
   {
+    case "blink":
+    {
+      if(spellsBought[0] == true)
+      {
+        document.getElementById("selected_spell").src = "assets/Icons/BlinkIcon.jpg";
+        spellSelectCosmetic();
+      }
+      else
+      {
+        document.getElementById("errorSpeech").currentTime = 0;
+        document.getElementById("errorSpeech").play();
+      }
+      break;
+    }
+
     case "fireball":
     {
       if(spellsBought[1] == true)

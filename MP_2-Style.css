@@ -36,10 +36,6 @@ body
     width: 1966px;
 }
 
-/* .stage_number
-{
-    display: none;
-} */
 
 .game_content
 {
@@ -161,8 +157,8 @@ body
 
 .selected_spell
 {
-    width: 9vw;
-    margin: 6vh 0px 0px 4vh;
+    width: 7vw;
+    margin: 6vh 0px 0px 4.2vw;
     opacity: 70%;
     display: none;
 }
@@ -238,7 +234,30 @@ body
     box-shadow: 0rem 0px 25px #676767;
 } 
 
+.cooldown_bar_outline
+{
+    display: none;
+    top: 0;
+    position: absolute;
+    z-index: 6;
+    width: 15vw;
+    height: 4vh;
+    margin: 89vh 32vw 0vh 51.5vw;
+    background-color: rgba(0, 0, 0, 0.494);
+    border: 0.4vh  solid #c79900;
+    box-shadow: 0vh 0vh 2vw black;
+    border-radius: 1vh;
+}
 
+.cooldown_bar_inside
+{
+    border-radius: 0.7vh;
+    width: 0%;
+    height: inherit;
+    background-image: url("assets/GameMenu/cooldownBar.jpg");
+    box-shadow: 0vh 0vh 1vw black;
+    background-repeat: no-repeat;
+}
 
 .lightning_button
 {
