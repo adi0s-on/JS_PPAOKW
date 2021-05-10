@@ -74,8 +74,10 @@
                 <label id="mana_bar_amount" class="mana_bar_amount">100.0/100</label>
                 <div class="left_interface_buttons">
                     <img id="skill_book" class="skill_book" src="assets/Icons/bookSkills.png" onclick="showSkillsMenu()">
-                    <img class="health_potion" src="assets/Icons//healthPotion.png" onclick="restoreHp()">
-                    <img class="mana_potion" src="assets/Icons/manaPotion.png" onclick="restoreMana()">
+                    <img id="health_potion" class="health_potion" src="assets/Icons//healthPotion.png" onclick="restoreHpOrMana('health')">
+                    <label id="health_potion_count" class="health_potion_count">3</label>
+                    <img id="mana_potion" class="mana_potion" src="assets/Icons/manaPotion.png" onclick="restoreHpOrMana('mana')">
+                    <label id="mana_potion_count" class="mana_potion_count">3</label>
                     <img id="selected_spell" class="selected_spell" src="assets/Icons/FireballIcon.jpg">
                 </div>
             </div>
@@ -97,20 +99,24 @@
         </video>
         <div id="spell_buttons" class="spell_buttons">
 
-            <img id="lightning_button" class="spell_button lightning_button" src="assets/Icons/LightningIcon.jpg" onclick="interfaceButtonsFunctionalities('spellLightning')">
-            <label for="lightning_button" class="lightning_button_label">Hurls a powerful lightning bolt that deals nature damage.</label>
-
+            
             <img id="blink_button" class="spell_button blink_button" src="assets/Icons/BlinkIcon.jpg" onclick="interfaceButtonsFunctionalities('spellBlink')">
             <label for="blink_button" class="blink_button_label">Teleports you forward 5 meters and frees you from any obstacles.</label>
-
-            <img id="fear_button" class="spell_button fear_button" src="assets/Icons/FearIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFear')">
-            <label for="fear_button" class="fear_button_label">Strikes fear in the enemy, disorienting for 4 sec.</label>
 
             <img id="fireball_button" class="spell_button fireball_button" src="assets/Icons/FireballIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFireball')">
             <label for="fireball_button" class="fireball_button_label">Throws a fiery ball that causes fire damage. Upgrade: explosion on impact.</label>
 
             <img id="toxicbolt_button" class="spell_button toxicbolt_button" src="assets/Icons/ToxicBoltIcon.jpg" onclick="interfaceButtonsFunctionalities('spellToxicbolt')">
             <label for="toxicbolt_button" class="toxicbolt_button_label">Unleashes a devastating toxic bolt that deals nature damage. Can cut through creatures.</label>
+
+            <img id="lightning_button" class="spell_button lightning_button" src="assets/Icons/LightningIcon.jpg" onclick="interfaceButtonsFunctionalities('spellLightning')">
+            <label for="lightning_button" class="lightning_button_label">Hurls a powerful lightning bolt that deals nature damage.</label>
+            
+            <img id="fear_button" class="spell_button fear_button" src="assets/Icons/FearIcon.jpg" onclick="interfaceButtonsFunctionalities('spellFear')">
+            <label for="fear_button" class="fear_button_label">Strikes fear in the enemy, disorienting for 2 sec.</label>
+
+            <img id="horses_button" class="spell_button horses_button" src="assets/Icons/HorsesIcon.jpg" onclick="interfaceButtonsFunctionalities('spellHorses')">
+            <label for="horses_button" class="horses_button_label">Summons 3 horses that charge at the enemy.</label>
         </div>
     </body>
 
