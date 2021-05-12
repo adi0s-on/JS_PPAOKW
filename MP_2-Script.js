@@ -16,24 +16,18 @@ TODOLIST
 po smierci i ponownym graniu stage nie przechodzi do nastepnego FIXME
 
 
-HP CHART
-skeleton 100
-phantom 150
-lich 200
-demon 300 
-overlord 2000
 */
 
 
 var healthMain = 100; let manaMain = 100; //health an mana set
 
 //these are used when player restarts stage
-var spellsSave = [true, true, true, true, true, true]; // same as above but for spells
+var spellsSave = [false, false, false, false, false, false]; // same as above but for spells
 
 //main variables of user stats
-var xp = 0; // xp stat
+var xp = 50; // xp stat
 var healthAmount = healthMain; var manaAmount = manaMain; // player health and mana set
-var spellsBought = [true, true, true, true, true, true]; //array that holds information about which spells have been purchased
+var spellsBought = [false, false, false, false, false, false]; //array that holds information about which spells have been purchased
 var currentStage = 0; //very important, sets which stage is now active
 
 var spellInterval = 0; //global spell cast cooldown
@@ -60,7 +54,16 @@ var horseImpactSoundAllowToPlay = true;
 var potionHealthCount = 3;
 var potionManaCount = 3;
 
+var lastBossSpellType = 1;
+var lastBossHealth = 0;
+var lastBossHealthForComparison = 0;
+var lastBossChangeInterval = 0;
 
+
+var lastBossSpellShootInterval = 0; 
+var lastBossSpellNovaInterval = 0; 
+var lastBossNovaActive = false;
+var lastBossSecondPhase = false;
 
 //FIXME
 //difficulty check
@@ -152,31 +155,36 @@ function startGame()
     //launches on stage creation
     create: function()
     {
-      //FIXME
+
+      lastBossSpellType = 1;
+      lastBossChangeInterval = 0;
+      lastBossSpellShootInterval = 0;
+      lastBossSpellNovaStyle = 1;
+      
+      manaPlayerSetMana();
+
       returnPlayerStatsWhenRestart();
-      createAnimationsAndAudio(currentStage); //create every animation for this stage
+      createAnimationsAndAudio(currentStage);
 
       enemies = null;
       enemiesSprites = null;
 
-      backgroundImage = this.add.image(987.5, 620, 'background'); //background image set
+      backgroundImage = this.add.image(987.5, 620, 'background5');
       backgroundImage.displayWidth = 1975;
-      backgroundImage.displayHeight  = 1240;
+      backgroundImage.displayHeight = 1240;
 
-      player = this.physics.add.sprite(987.5, 620 , 'playerDown'); //player sprite set
+      player = this.physics.add.sprite(300, 400, 'playerDown');
       player.anims.play('up', true); //player animation
       player.displayWidth = 80; //player width
       player.displayHeight = 80; //player height
       player.body.collideWorldBounds = true; //player collides on world border
       player.body.immovable = false; //player can be moved by other mobs
-  
+
       let difficultyLeveles = document.getElementsByName("difficulty"); //skeleton spawn depends on difficulty set
-  
-      //arrays of enemy objects
-      let enemiesSkeleton = [];
-      let enemiesPhantom = [];
-      let enemiesLich = [];
-      let enemiesDemon = [];
+
+      let enemiesOverlord = [];
+
+      enemiesOverlordSprites = [];
 
       let difficultyLevel = 0; //difficulty level set 
       for(let i = 0; i < difficultyLeveles.length; i++) //difficulty setting read
@@ -187,65 +195,204 @@ function startGame()
           break;
         }
       }
-  
-      //Create enemies  
-      for(let i = 0; i < (10 + 5 * difficultyLevel); i++)
-      {
-        enemiesSkeleton[i] = new Skeleton("Skeleton", 100, "xpParticle");
-        enemiesSkeletonSprites[i] = this.physics.add.sprite(200 + i*85, 180, 'skeletonAnimation');
-        enemiesSkeletonSprites[i].anims.play('skeleton', true);
-        enemiesSkeletonSprites[i].displayHeight = 55;
-        enemiesSkeletonSprites[i].displayWidth = 55;
-        enemiesSkeletonSprites[i].body.collideWorldBounds = true;
-        enemiesSkeletonSprites[i].body.immovable = false; 
-        enemiesCount++;
-      }
 
-      // enemiesSkeleton[Math.floor(Math.random()*(10 + 5 * difficultyLevel - 1))].drop ="healthDrop"//give to random skeleton a health potion
-      for(let i = 0; i < (2 + 1 * difficultyLevel); i++)
-      {
-        enemiesPhantom[i] = new Phantom("Phantom", 160, "xpParticle");
-        enemiesPhantomSprites[i] = this.physics.add.sprite(200 + i*500, 1100, 'phantomAnimation');
-        enemiesPhantomSprites[i].anims.play('phantom', true);
-        enemiesPhantomSprites[i].displayHeight = 90;
-        enemiesPhantomSprites[i].displayWidth = 90;
-        enemiesPhantomSprites[i].body.collideWorldBounds = true;
-        enemiesPhantomSprites[i].body.immovable = false; 
-        enemiesCount++;
-      }
-
-
-      // enemiesPhantom[Math.floor(Math.random()*(2 + 1 * difficultyLevel - 1))].drop ="healthDrop"//give to random phantom a health potion
-
-      //adding colission between enemy and player
-      enemiesAddColissionToPlayer(enemiesSkeletonSprites, player, currentStage, 0.15);
-      enemiesAddColissionToPlayer(enemiesPhantomSprites, player, currentStage, 0.25);
       
-      //adding collision between eachother
-      enemiesAddCollisionBetweenSameEnemies(enemiesSkeletonSprites, currentStage);
-      enemiesAddCollisionBetweenSameEnemies(enemiesPhantomSprites, currentStage);
+      for(let i = 0; i < 1; i++)
+      {
+        enemiesOverlord[i] = new Overlord("Overlord", 1700*difficultyLevel, "xpParticle");
+        enemiesOverlordSprites[i] = this.physics.add.sprite(987.5, 620, 'overlordAnimation');
+        enemiesOverlordSprites[i].body.setSize(200, 200);
+        enemiesOverlordSprites[i].anims.play('overlord', true);
+        enemiesOverlordSprites[i].displayHeight = 500;
+        enemiesOverlordSprites[i].displayWidth = 721;
+        enemiesOverlordSprites[i].body.collideWorldBounds = true;
+        enemiesOverlordSprites[i].body.immovable = true; 
+        // enemiesOverlordSprites[i].setDepth(11);
+        enemiesCount++;
+      }
+      lastBossHealth = enemiesOverlord[0].health;
+      lastBossHealthForComparison = enemiesOverlord[0].health;
 
-      //merged arrays for easier movement and spell colission detection
-      enemies = enemiesSkeleton.concat(enemiesPhantom);
-      enemiesSprites = enemiesSkeletonSprites.concat(enemiesPhantomSprites);
+      enemiesAddColissionToPlayer(enemiesOverlordSprites, player, currentStage, 3.5);
 
-      //set keyboards keys
+      enemies = enemiesOverlord;
+      enemiesSprites = enemiesOverlordSprites;
+
       setKeyboardKeys(currentStage);
-  
+
+      document.getElementById("last_boss_outline").style.display = "block";
+
+
       this.scene.pause();
-      document.getElementById("stage_1_ambience").volume = "0.25"; //music volume set
-      document.getElementById("stage_1_music").volume = "0.2"; //music volume set
       document.getElementById("stage_1_music").pause();
       document.getElementById("stage_1_ambience").pause();
+      document.getElementById("stage_1_music").src = "assets/Audio/Music/stage5Music.mp3";
+      document.getElementById("stage_1_ambience").src = "assets/Audio/Music/stage5Ambience.mp3";
+      document.getElementById("stage_1_music").volume = 0.6; 
+      document.getElementById("stage_1_ambience").volume = 0.3; 
       this.scene.launch('PauseMenu');
+
+
+      // //FIXME
+      // returnPlayerStatsWhenRestart();
+      // createAnimationsAndAudio(currentStage); //create every animation for this stage
+
+      // enemies = null;
+      // enemiesSprites = null;
+
+      // backgroundImage = this.add.image(987.5, 620, 'background'); //background image set
+      // backgroundImage.displayWidth = 1975;
+      // backgroundImage.displayHeight  = 1240;
+
+      // player = this.physics.add.sprite(987.5, 620 , 'playerDown'); //player sprite set
+      // player.anims.play('up', true); //player animation
+      // player.displayWidth = 80; //player width
+      // player.displayHeight = 80; //player height
+      // player.body.collideWorldBounds = true; //player collides on world border
+      // player.body.immovable = false; //player can be moved by other mobs
+  
+      // let difficultyLeveles = document.getElementsByName("difficulty"); //skeleton spawn depends on difficulty set
+  
+      // //arrays of enemy objects
+      // let enemiesSkeleton = [];
+      // let enemiesPhantom = [];
+      // let enemiesLich = [];
+      // let enemiesDemon = [];
+
+      // let difficultyLevel = 0; //difficulty level set 
+      // for(let i = 0; i < difficultyLeveles.length; i++) //difficulty setting read
+      // {
+      //   if(difficultyLeveles[i].checked)
+      //   {
+      //     difficultyLevel = difficultyLeveles[i].value;
+      //     break;
+      //   }
+      // }
+      // //Create enemies  
+      // for(let i = 0; i < (1 * difficultyLevel); i++)
+      // {
+      //   enemiesSkeleton[i] = new Skeleton("Skeleton", 100, "xpParticle");
+      //   enemiesSkeletonSprites[i] = this.physics.add.sprite(200 + i*85, 180, 'skeletonAnimation');
+      //   enemiesSkeletonSprites[i].anims.play('skeleton', true);
+      //   enemiesSkeletonSprites[i].displayHeight = 55;
+      //   enemiesSkeletonSprites[i].displayWidth = 55;
+      //   enemiesSkeletonSprites[i].body.collideWorldBounds = true;
+      //   enemiesSkeletonSprites[i].body.immovable = false; 
+      //   enemiesCount++;
+      // }
+
+      // // enemiesSkeleton[Math.floor(Math.random()*(10 + 5 * difficultyLevel - 1))].drop ="healthDrop"//give to random skeleton a health potion
+      // for(let i = 0; i < (1 * difficultyLevel); i++)
+      // {
+      //   enemiesPhantom[i] = new Phantom("Phantom", 160, "xpParticle");
+      //   enemiesPhantomSprites[i] = this.physics.add.sprite(200 + i*500, 1100, 'phantomAnimation');
+      //   enemiesPhantomSprites[i].anims.play('phantom', true);
+      //   enemiesPhantomSprites[i].displayHeight = 90;
+      //   enemiesPhantomSprites[i].displayWidth = 90;
+      //   enemiesPhantomSprites[i].body.collideWorldBounds = true;
+      //   enemiesPhantomSprites[i].body.immovable = false; 
+      //   enemiesCount++;
+      // }
+
+
+      // // enemiesPhantom[Math.floor(Math.random()*(2 + 1 * difficultyLevel - 1))].drop ="healthDrop"//give to random phantom a health potion
+
+      // //adding colission between enemy and player
+      // enemiesAddColissionToPlayer(enemiesSkeletonSprites, player, currentStage, 0.15);
+      // enemiesAddColissionToPlayer(enemiesPhantomSprites, player, currentStage, 0.25);
+      
+      // //adding collision between eachother
+      // enemiesAddCollisionBetweenSameEnemies(enemiesSkeletonSprites, currentStage);
+      // enemiesAddCollisionBetweenSameEnemies(enemiesPhantomSprites, currentStage);
+
+      // //merged arrays for easier movement and spell colission detection
+      // enemies = enemiesSkeleton.concat(enemiesPhantom);
+      // enemiesSprites = enemiesSkeletonSprites.concat(enemiesPhantomSprites);
+
+      // //set keyboards keys
+      // setKeyboardKeys(currentStage);
+  
+      // this.scene.pause();
+      // document.getElementById("stage_1_ambience").volume = "0.25"; //music volume set
+      // document.getElementById("stage_1_music").volume = "0.2"; //music volume set
+      // document.getElementById("stage_1_music").pause();
+      // document.getElementById("stage_1_ambience").pause();
+      // this.scene.launch('PauseMenu');
     },
   
     //runs with every frame of the game
     update: function() 
     {
+      // if(playerAlive)
+      // {
+      //   //spell cooldown set, display set
+      //   if(spellInterval < 30)
+      //   {
+      //     document.getElementById("cooldown_bar_outline").style.display = "block";
+      //     document.getElementById("cooldown_bar_inside").style.width = (spellInterval * 3.33 + "%");
+      //     spellInterval++;
+      //   }
+      //   else
+      //   {
+      //     document.getElementById("cooldown_bar_outline").style.display = "none";
+      //     document.getElementById("cooldown_bar_inside").style.width = "0%";
+      //   }
+  
+      //   //if player mana is below 100 then add 0.3, else dont 
+      //   if(manaTemp < 100)
+      //   {
+      //     manaTemp += 0.3;
+      //     manaPlayerSetMana();
+      //   }
+      //   else 
+      //   {
+      //     manaTemp = 100;
+      //     manaPlayerSetMana();
+      //   }
+      //   //check if player is still alive
+      //   if(healthAmount < 0)
+      //   {
+      //     playerDied(currentStage);
+      //   }
+  
+      //   if(enemiesCount <= 0)
+      //   {
+      //     nextStage(currentStage);
+      //   }
+    
+      //   //move enemies
+
+  
+      //   keyboardButtonsFunctionalities();
+    
+      //   if(escapeButton.isDown)
+      //   {
+      //     if(!escapeButtonSwitch)
+      //     {
+      //       this.scene.pause();
+      //       this.scene.launch('PauseMenu');
+      //       escapeButtonSwitch = true;
+      //     }
+      //   }
+      //   if(escapeButton.isUp)
+      //   {
+      //     escapeButtonSwitch = false;
+      //   }
+      // }
+
+      // enemiesMove(enemiesSkeletonSprites, player, 100);
+      // enemiesMove(enemiesPhantomSprites, player, 160);
+
       if(playerAlive)
       {
-        //spell cooldown set, display set
+
+        if(enemies[0].health <= lastBossHealthForComparison)
+        {
+          document.getElementById("last_boss_outline").style.display = "block";
+          document.getElementById("last_boss_inside").style.width = (((enemies[0].health / lastBossHealth) * 100) + "%");
+          lastBossHealthForComparison = enemies[0].health;
+        }
+
         if(spellInterval < 30)
         {
           document.getElementById("cooldown_bar_outline").style.display = "block";
@@ -257,7 +404,7 @@ function startGame()
           document.getElementById("cooldown_bar_outline").style.display = "none";
           document.getElementById("cooldown_bar_inside").style.width = "0%";
         }
-  
+
         //if player mana is below 100 then add 0.3, else dont 
         if(manaTemp < 100)
         {
@@ -269,26 +416,19 @@ function startGame()
           manaTemp = 100;
           manaPlayerSetMana();
         }
-        //check if player is still alive
-        if(healthAmount < 0)
+  
+        if(healthAmount <= 0)
         {
           playerDied(currentStage);
         }
-  
-        if(enemiesCount <= 0)
-        {
-          nextStage(currentStage);
-        }
-    
-        //move enemies
 
-  
         keyboardButtonsFunctionalities();
-    
+
         if(escapeButton.isDown)
         {
           if(!escapeButtonSwitch)
           {
+            
             this.scene.pause();
             this.scene.launch('PauseMenu');
             escapeButtonSwitch = true;
@@ -298,13 +438,350 @@ function startGame()
         {
           escapeButtonSwitch = false;
         }
+
+        let xDifference = player.x - enemiesOverlordSprites[0].x;
+        let yDifference = player.y - enemiesOverlordSprites[0].y;
+  
+        let c = Math.sqrt((xDifference * xDifference) + (yDifference * yDifference));
+        let sina = Math.abs(xDifference) / c;
+        let sinb = Math.abs(yDifference) / c;
+
+        let angleForFireball = 0;  
+
+        if(lastBossSpellType == 1 || lastBossSpellType == 3)
+        {
+          lastBossSpellShootInterval++;
+          lastBossChangeInterval++;
+
+          if(player.x > enemiesOverlordSprites[0].x)
+          {
+            if(player.y < enemiesOverlordSprites[0].y)  
+            {
+              angleForFireball = ((Math.asin(sina) * 180) / Math.PI);
+              enemiesOverlordSprites[0].angle = ((Math.asin(sina) * 180) / Math.PI);
+            }
+            else
+            {
+              angleForFireball = 180 - ((Math.asin(sina) * 180) / Math.PI);
+              enemiesOverlordSprites[0].angle = 180 - ((Math.asin(sina) * 180) / Math.PI);
+            }
+          }
+          if(player.x < enemiesOverlordSprites[0].x)
+          {
+            if(player.y > enemiesOverlordSprites[0].y)
+            {
+              angleForFireball = 180 + ((Math.asin(sina) * 180) / Math.PI);
+              enemiesOverlordSprites[0].angle = 180 + ((Math.asin(sina) * 180) / Math.PI);
+            }
+            else
+            {
+              angleForFireball = 360 - ((Math.asin(sina) * 180) / Math.PI);
+              enemiesOverlordSprites[0].angle = 360 - ((Math.asin(sina) * 180) / Math.PI);
+            }  
+          }
+
+          if(lastBossSpellShootInterval >= 30)
+          {
+            let lastBossChaosBoltSingle = game.scene.scenes[currentStage - 1].physics.add.sprite(enemiesOverlordSprites[0].x, enemiesOverlordSprites[0].y, 'lastBossChaosBolt');
+            lastBossChaosBoltSingle.anims.play('lbChaosBolt', true);
+            lastBossChaosBoltSingle.displayWidth = 140; lastBossChaosBoltSingle.displayHeight = 55;
+            lastBossChaosBoltSingle.angle = enemiesOverlordSprites[0].angle + 90;
+            lastBossChaosBoltSingle.on('animationcomplete', ()=>
+            {
+              lastBossChaosBoltSingle.destroy();
+            });
+
+            // let angleSave = 0;
+
+            // if(enemiesOverlordSprites[0].angle <= 0)
+            // {
+            //   angleSave = 360 + enemiesOverlordSprites[0].angle;
+            // }
+            // else
+            // {
+            //   angleSave = enemiesOverlordSprites[0].angle;
+            // } 
+
+            // lastBossChaosBoltSingle.x = (enemiesOverlordSprites[0].x - 200 * Math.sin((360 - angleSave) * (Math.PI / 180)));
+            // lastBossChaosBoltSingle.y = (enemiesOverlordSprites[0].y - 200 * Math.sin((360 - angleSave) * (Math.PI / 180)));
+
+            lastBossChaosBoltSingle.setSize(10, 10);
+
+            game.scene.scenes[currentStage - 1].physics.add.collider(lastBossChaosBoltSingle, player, () => 
+            {
+              switch(toxicboltImpactSoundSwitch)
+              {
+                case 1:
+                {
+                  toxicboltImpactSound1.play(); 
+                  toxicboltImpactSoundSwitch = 2;
+                  break;
+                }
+                case 2:
+                {
+                  toxicboltImpactSoundSwitch = 3;
+                  toxicboltImpactSound2.play();
+                  break;
+                }
+                case 3:
+                {
+                  toxicboltImpactSoundSwitch = 1;
+                  toxicboltImpactSound3.play(); 
+                  break;
+                }
+              }
+              lastBossChaosBoltSingle.destroy();
+              healthTemp -= 10;
+              hurtPlayerSetHealth();
+
+              let explosion = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x, player.y, 'lastBossExplosion');
+              explosion.anims.play('lbExplosion', true);
+              explosion.displayWidth = 150; explosion.displayHeight = 150;
+              explosion.on('animationcomplete', () => 
+              {
+                explosion.disableBody(true, true);
+              });
+
+            });
+
+            if(player.x > enemiesOverlordSprites[0].x)
+            {
+              if(player.y < enemiesOverlordSprites[0].y)  
+              {
+                lastBossChaosBoltSingle.body.velocity.setTo(sina * 480, sinb * (-480));
+              }
+              else
+              {
+                lastBossChaosBoltSingle.body.velocity.setTo(sina * 480, sinb * 480);
+              }
+            }
+            if(player.x < enemiesOverlordSprites[0].x)
+            {
+              if(player.y > enemiesOverlordSprites[0].y)
+              {
+                lastBossChaosBoltSingle.body.velocity.setTo(sina * (-480), sinb * 480);
+              }
+              else
+              {
+                lastBossChaosBoltSingle.body.velocity.setTo(sina * (-480), sinb * (-480));
+              }  
+            }
+            lastBossSpellShootInterval = 0;
+          }
+          if(lastBossChangeInterval >= 600)
+          {
+            lastBossSpellType++;
+            lastBossChangeInterval = 0;
+          }
+        }
+
+        if(lastBossSpellType == 2)
+        {
+          lastBossSpellShootInterval++;
+          lastBossChangeInterval++;
+
+          if(lastBossSpellShootInterval >= 6.5)
+          {
+            let lastBossFireballSingle = game.scene.scenes[currentStage - 1].physics.add.sprite(enemiesOverlordSprites[0].x, enemiesOverlordSprites[0].y, 'lastBossFireball');
+            lastBossFireballSingle.anims.play('lbFireball', true);
+            lastBossFireballSingle.displayWidth = 110; lastBossFireballSingle.displayHeight = 40;
+            lastBossFireballSingle.angle = enemiesOverlordSprites[0].angle + 90;
+            lastBossFireballSingle.on('animationcomplete', ()=>
+            {
+              lastBossFireballSingle.destroy();
+            })
+
+            let bossAAngle = 0;
+            let angleSave = 0;
+
+            if(enemiesOverlordSprites[0].angle <= 0)
+            {
+              bossAAngle = 180 + enemiesOverlordSprites[0].angle;
+              angleSave = 360 + enemiesOverlordSprites[0].angle;
+            }
+            else
+            {
+              bossAAngle = enemiesOverlordSprites[0].angle; 
+              angleSave = bossAAngle;
+            } 
+            if(bossAAngle > 90)
+            {
+              bossAAngle -= 90;
+            }
+
+            lastBossFireballSingle.x = (enemiesOverlordSprites[0].x -200 * Math.sin((360 - angleSave) * (Math.PI / 180)));
+            lastBossFireballSingle.y = (enemiesOverlordSprites[0].y -200 * Math.cos((360 - angleSave) * (Math.PI / 180)));
+
+            lastBossFireballSingle.body.setSize(10, 10);
+
+            game.scene.scenes[currentStage - 1].physics.add.collider(lastBossFireballSingle, player, () => 
+            {
+              switch(fireballImpactSoundSwitch)
+              {
+                case 1:
+                {
+                  fireballImpactSound1.play(); fireballImpactSoundSwitch = 2;
+                  break;
+                }
+                case 2:
+                {
+                  fireballImpactSound2.play(); fireballImpactSoundSwitch = 3;
+                  break;
+                }
+                case 3:
+                {
+                  fireballImpactSound3.play(); fireballImpactSoundSwitch = 4;
+                  break;
+                }
+                case 4:
+                {
+                  fireballImpactSound4.play(); fireballImpactSoundSwitch = 1;
+                  break;
+                }
+              }              
+              lastBossFireballSingle.destroy();
+              healthTemp -= 5;
+              hurtPlayerSetHealth();
+            });
+ 
+            let bossBAngle = 180 - 90 - bossAAngle;
+
+            let sina2 = Math.sin((bossAAngle * Math.PI) / 180);
+            let sinb2 = Math.sin((bossBAngle * Math.PI) / 180);
+
+            if(angleSave >= 0 && angleSave < 90)
+            {
+              lastBossFireballSingle.body.velocity.setTo(sina2 * 300, sinb2 * (-300));
+            }
+            else if( angleSave >= 90 && angleSave < 180)
+            {
+              lastBossFireballSingle.body.velocity.setTo(sinb2 * 300, sina2 * 300);
+            }
+            else if(angleSave >= 180 && angleSave < 270)
+            {
+              lastBossFireballSingle.body.velocity.setTo(sina2 * (-300), sinb2 * 300);
+            }
+            else if(angleSave >= 270 && angleSave < 360)
+            {
+              lastBossFireballSingle.body.velocity.setTo(sinb2 * (-300), sina2 * (-300));
+            }
+            lastBossSpellShootInterval = 0;
+          }
+
+          enemiesOverlordSprites[0].angle += 1.7;
+
+          if(lastBossChangeInterval >= 450)
+          {
+            lastBossSpellType++;
+            lastBossChangeInterval = 0;
+          }
+        }
+
+        if(lastBossSpellType == 4)
+        {
+          lastBossSpellShootInterval++;
+          lastBossChangeInterval++;
+          
+          if(lastBossSpellShootInterval >= 30)
+          {
+            if(lastBossSpellNovaStyle == 1)
+            {
+              for(let i = 1; i <= 12; i++)
+              {
+                let angleMain = 30 * i;
+                let angle1 = angleMain;
+                
+                if(angleMain > 90 && angleMain <= 180)
+                {
+                  angle1 = angle1 - 90;
+                }
+                else if(angleMain > 180 && angleMain <= 270)
+                {
+                  angle1 = angle1 - 180;
+                }
+                else if(angleMain > 270 && angleMain < 360)
+                {
+                  angle1 = angle1 - 270;
+                }
+
+                let angle2 = 90 - angle1;
+
+                let sina2 = Math.sin((angle1 * Math.PI) / 180);
+                let sinb2 = Math.sin((angle2 * Math.PI) / 180);
+
+                let lastBossFireballSingle = game.scene.scenes[currentStage - 1].physics.add.sprite(enemiesOverlordSprites[0].x, enemiesOverlordSprites[0].y, 'lastBossFireball');
+                lastBossFireballSingle.anims.play('lbFireball', true);
+                lastBossFireballSingle.displayWidth = 110; lastBossFireballSingle.displayHeight = 40;
+                lastBossFireballSingle.angle = enemiesOverlordSprites[0].angle + 90;
+                lastBossFireballSingle.on('animationcomplete', ()=>
+                {
+                  lastBossFireballSingle.destroy();
+                })
+
+                if(angleMain >= 0 && angleMain < 90)
+                {
+                  lastBossFireballSingle.body.velocity.setTo(sina2 * 300, sinb2 * (-300));
+                }
+                else if( angleMain >= 90 && angleMain < 180)
+                {
+                  lastBossFireballSingle.body.velocity.setTo(sinb2 * 300, sina2 * 300);
+                }
+                else if(angleMain >= 180 && angleMain < 270)
+                {
+                  lastBossFireballSingle.body.velocity.setTo(sina2 * (-300), sinb2 * 300);
+                }
+                else if(angleMain >= 270 && angleMain <= 360)
+                {
+                  lastBossFireballSingle.body.velocity.setTo(sinb2 * (-300), sina2 * (-300));
+                }
+
+                if(i == 6)
+                {
+                  lastBossFireballSingle.body.velocity.setTo(300, 0);
+                  // lastBossFireballSingle.angle = 180 ;
+                }
+
+                if(angleMain == 90)
+                {
+                  lastBossFireballSingle.angle = angleMain - 180;
+                }
+                else if(angleMain == 180 || 360)
+                {
+                  lastBossFireballSingle.angle = angleMain;
+                }
+                else if(angleMain == 270)
+                {
+                  lastBossFireballSingle.angle = angleMain + 180;
+                }
+                else
+                {
+                  lastBossFireballSingle.angle = angleMain + 90;
+                }
+
+              }
+              lastBossSpellNovaStyle = 0;
+            }
+            else
+            {
+
+              lastBossSpellNovaStyle = 1;
+            }
+            lastBossSpellShootInterval = 0;
+          }
+
+          if(lastBossChangeInterval >= 300)
+          {
+            lastBossSpellType = 1;
+            lastBossChangeInterval = 0;
+          }
+        }
+
+        if(enemiesCount <= 0)
+        {
+          gameEnded(currentStage);
+        }
       }
-
-      enemiesMove(enemiesSkeletonSprites, player, 100);
-      enemiesMove(enemiesPhantomSprites, player, 160);
-
     },
-
   });
 
   var SecondStage = new Phaser.Class({
@@ -324,11 +801,6 @@ function startGame()
 
     create: function()
     {
-      xpSave = xp; healthSave = healthAmount;
-      potionHealthCountSave = potionHealthCount;
-      potionManaCountSave = potionManaCount;
-      manaTemp = 100;
-      enemiesCount = 0;
       manaPlayerSetMana();
       
       returnPlayerStatsWhenRestart(); 
@@ -371,35 +843,35 @@ function startGame()
         }
       }
       
-      for(let i = 0; i < (3 + 1 * difficultyLevel); i++)
-      {
-        enemiesSkeleton[i] = new Skeleton("Skeleton", 100, "xpParticle");
-        enemiesSkeletonSprites[i] = this.physics.add.sprite(1800, 550 + i*100, 'skeletonAnimation');
-        enemiesSkeletonSprites[i].anims.play('skeleton', true);
-        enemiesSkeletonSprites[i].displayHeight = 55;
-        enemiesSkeletonSprites[i].displayWidth = 55;
-        enemiesSkeletonSprites[i].body.collideWorldBounds = true;
-        enemiesSkeletonSprites[i].body.immovable = false; 
-        enemiesCount++;
-      }
-      for(let i = 0; i < (4 + 1 * difficultyLevel); i++)
-      {
-        enemiesPhantom[i] = new Phantom("Phantom", 160, "xpParticle");
-        enemiesPhantomSprites[i] = this.physics.add.sprite(200, 200 + i*170, 'phantomAnimation');
-        enemiesPhantomSprites[i].anims.play('phantom', true);
-        enemiesPhantomSprites[i].displayHeight = 90;
-        enemiesPhantomSprites[i].displayWidth = 90;
-        enemiesPhantomSprites[i].body.collideWorldBounds = true;
-        enemiesPhantomSprites[i].body.immovable = false; 
-        enemiesCount++;
-      }
+      // for(let i = 0; i < (4 + 2 * difficultyLevel); i++)
+      // {
+      //   enemiesSkeleton[i] = new Skeleton("Skeleton", 100, "xpParticle");
+      //   enemiesSkeletonSprites[i] = this.physics.add.sprite(1800, 550 + i*100, 'skeletonAnimation');
+      //   enemiesSkeletonSprites[i].anims.play('skeleton', true);
+      //   enemiesSkeletonSprites[i].displayHeight = 55;
+      //   enemiesSkeletonSprites[i].displayWidth = 55;
+      //   enemiesSkeletonSprites[i].body.collideWorldBounds = true;
+      //   enemiesSkeletonSprites[i].body.immovable = false; 
+      //   enemiesCount++;
+      // }
+      // for(let i = 0; i < (5 + 1 * difficultyLevel); i++)
+      // {
+      //   enemiesPhantom[i] = new Phantom("Phantom", 160, "xpParticle");
+      //   enemiesPhantomSprites[i] = this.physics.add.sprite(200, 200 + i*170, 'phantomAnimation');
+      //   enemiesPhantomSprites[i].anims.play('phantom', true);
+      //   enemiesPhantomSprites[i].displayHeight = 90;
+      //   enemiesPhantomSprites[i].displayWidth = 90;
+      //   enemiesPhantomSprites[i].body.collideWorldBounds = true;
+      //   enemiesPhantomSprites[i].body.immovable = false; 
+      //   enemiesCount++;
+      // }
       for(let i = 0; i < 1; i++)
       {
         enemiesLich[i] = new Lich("Lich", 210, "xpParticle");
         enemiesLichSprites[i] = this.physics.add.sprite(800, 1050, 'lichAnimation');
         enemiesLichSprites[i].anims.play('lich', true);
-        enemiesLichSprites[i].displayHeight = 75;
-        enemiesLichSprites[i].displayWidth = 75;
+        enemiesLichSprites[i].displayHeight = 110;
+        enemiesLichSprites[i].displayWidth = 110;
         enemiesLichSprites[i].body.collideWorldBounds = true;
         enemiesLichSprites[i].body.immovable = false;
         enemiesCount++;
@@ -512,11 +984,6 @@ function startGame()
 
     create: function()
     {
-      xpSave = xp; healthSave = healthAmount;
-      potionHealthCountSave = potionHealthCount;
-      potionManaCountSave = potionManaCount;
-      manaTemp = 100;
-      enemiesCount = 0;
       manaPlayerSetMana();
       
       returnPlayerStatsWhenRestart(); 
@@ -559,10 +1026,10 @@ function startGame()
         }
       }
 
-      for(let i = 0; i < (5 + 1 * difficultyLevel); i++)
+      for(let i = 0; i < (7 + 2 * difficultyLevel); i++)
       {
         enemiesPhantom[i] = new Phantom("Phantom", 160, "xpParticle");
-        enemiesPhantomSprites[i] = this.physics.add.sprite(200 + i * 120, 180, 'phantomAnimation');
+        enemiesPhantomSprites[i] = this.physics.add.sprite(200 + i * 100, 180, 'phantomAnimation');
         enemiesPhantomSprites[i].anims.play('phantom', true);
         enemiesPhantomSprites[i].displayHeight = 90;
         enemiesPhantomSprites[i].displayWidth = 90;
@@ -570,17 +1037,17 @@ function startGame()
         enemiesPhantomSprites[i].body.immovable = false; 
         enemiesCount++;
       }
-      for(let i = 0; i < (3 + 2 * difficultyLevel); i++)
-      {
-        enemiesLich[i] = new Lich("Lich", 210, "xpParticle");
-        enemiesLichSprites[i] = this.physics.add.sprite(800, 1050, 'lichAnimation');
-        enemiesLichSprites[i].anims.play('lich', true);
-        enemiesLichSprites[i].displayHeight = 75;
-        enemiesLichSprites[i].displayWidth = 75;
-        enemiesLichSprites[i].body.collideWorldBounds = true;
-        enemiesLichSprites[i].body.immovable = false;
-        enemiesCount++;
-      }
+      // for(let i = 0; i < (6 + 3 * difficultyLevel); i++)
+      // {
+      //   enemiesLich[i] = new Lich("Lich", 210, "xpParticle");
+      //   enemiesLichSprites[i] = this.physics.add.sprite(800 + i * 100, 1050, 'lichAnimation');
+      //   enemiesLichSprites[i].anims.play('lich', true);
+      //   enemiesLichSprites[i].displayHeight = 110;
+      //   enemiesLichSprites[i].displayWidth = 110;
+      //   enemiesLichSprites[i].body.collideWorldBounds = true;
+      //   enemiesLichSprites[i].body.immovable = false;
+      //   enemiesCount++;
+      // }
 
       enemiesAddColissionToPlayer(enemiesPhantomSprites, player, currentStage, 0.25);
       enemiesAddColissionToPlayer(enemiesLichSprites, player, currentStage, 0.4);
@@ -665,7 +1132,418 @@ function startGame()
       enemiesMove(enemiesLichSprites, player, 130);
     },
 
+
   });
+
+  var FourthStage = new Phaser.Class({
+      Extends: Phaser.Scene,
+      initialize:
+
+      function FourthStage()
+      {
+        Phaser.Scene.call(this, {key: 'FourthStage'});
+      },
+
+      preload: function()
+      {
+        currentStage = 4;
+        loadSpritesAndAudio(currentStage);
+      },
+
+      create: function()
+      {
+        manaPlayerSetMana();
+
+        returnPlayerStatsWhenRestart(); 
+        createAnimationsAndAudio(currentStage);
+  
+        enemies = null;
+        enemiesSprites = null;
+  
+        backgroundImage = this.add.image(987.5, 620, 'background4');
+        backgroundImage.displayWidth = 1975;
+        backgroundImage.displayHeight = 1240;
+  
+        player = this.physics.add.sprite(987.5, 620, 'playerDown');
+        player.anims.play('up', true); //player animation
+        player.displayWidth = 80; //player width
+        player.displayHeight = 80; //player height
+        player.body.collideWorldBounds = true; //player collides on world border
+        player.body.immovable = false; //player can be moved by other mobs
+  
+        let difficultyLeveles = document.getElementsByName("difficulty"); //skeleton spawn depends on difficulty set
+    
+        //arrays of enemy objects
+        let enemiesSkeleton = [];
+        let enemiesPhantom = [];
+        let enemiesLich = [];
+        let enemiesDemon = [];
+  
+        enemiesSkeletonSprites = [];
+        enemiesPhantomSprites = [];
+        enemiesLichSprites = [];
+        enemiesDemonSprites = [];
+
+        
+        let difficultyLevel = 0; //difficulty level set 
+        for(let i = 0; i < difficultyLeveles.length; i++) //difficulty setting read
+        {
+          if(difficultyLeveles[i].checked)
+          {
+            difficultyLevel = difficultyLeveles[i].value;
+            break;
+          }
+        }
+
+        for(let i = 0; i < (3 + 1 * difficultyLevel); i++)
+        {
+          enemiesPhantom[i] = new Phantom("Phantom", 160, "xpParticle");
+          enemiesPhantomSprites[i] = this.physics.add.sprite(200, 200 + i * 200, 'phantomAnimation');
+          enemiesPhantomSprites[i].anims.play('phantom', true);
+          enemiesPhantomSprites[i].displayHeight = 90;
+          enemiesPhantomSprites[i].displayWidth = 90;
+          enemiesPhantomSprites[i].body.collideWorldBounds = true;
+          enemiesPhantomSprites[i].body.immovable = false; 
+          enemiesCount++;
+        }
+        // for(let i = 0; i < (9 + 1 * difficultyLevel); i++)
+        // {
+        //   enemiesLich[i] = new Lich("Lich", 250, "xpParticle");
+        //   enemiesLichSprites[i] = this.physics.add.sprite(1800, 350 + i * 80, 'lichAnimation');
+        //   enemiesLichSprites[i].anims.play('lich', true);
+        //   enemiesLichSprites[i].displayHeight = 110;
+        //   enemiesLichSprites[i].displayWidth = 110;
+        //   enemiesLichSprites[i].body.collideWorldBounds = true;
+        //   enemiesLichSprites[i].body.immovable = false;
+        //   enemiesCount++;
+        // }
+
+        // for(let i = 0; i < 4; i++)
+        // {
+        //   enemiesDemon[i] = new Demon("Demon", 500, "xpParticle");
+        //   enemiesDemonSprites[i] = this.physics.add.sprite(200 + i *250, 200, 'demonAnimation');
+        //   enemiesDemonSprites[i].anims.play('demon', true);
+        //   enemiesDemonSprites[i].displayHeight = 250;
+        //   enemiesDemonSprites[i].displayWidth = 250;
+        //   enemiesDemonSprites[i].body.collideWorldBounds = true;
+        //   enemiesDemonSprites[i].body.immovable = false;
+        //   enemiesCount++;
+        // }
+
+        enemiesAddColissionToPlayer(enemiesPhantomSprites, player, currentStage, 0.25);
+        enemiesAddColissionToPlayer(enemiesLichSprites, player, currentStage, 0.4);
+        enemiesAddColissionToPlayer(enemiesDemonSprites, player, currentStage, 0.55);
+
+        enemiesAddCollisionBetweenSameEnemies(enemiesPhantomSprites, currentStage);
+        enemiesAddCollisionBetweenSameEnemies(enemiesLichSprites, currentStage);
+        enemiesAddCollisionBetweenSameEnemies(enemiesDemonSprites, currentStage);
+
+        enemiesAddColissionBetweenDifferentEnemies(enemiesDemonSprites, enemiesLichSprites, currentStage);
+
+        enemies = enemiesPhantom.concat(enemiesLich, enemiesDemon);
+        enemiesSprites = enemiesPhantomSprites.concat(enemiesLichSprites, enemiesDemonSprites);
+
+        setKeyboardKeys(currentStage);
+
+        this.scene.pause();
+        document.getElementById("stage_1_music").pause();
+        document.getElementById("stage_1_ambience").pause();
+        document.getElementById("stage_1_music").src = "assets/Audio/Music/stage4Music.mp3";
+        document.getElementById("stage_1_ambience").src = "assets/Audio/Music/stage4Ambience.mp3";
+        document.getElementById("stage_1_music").volume = 0.6; 
+        document.getElementById("stage_1_ambience").volume = 0.3; 
+        this.scene.launch('PauseMenu');
+
+      },
+
+      update: function()
+      {
+        if(playerAlive)
+        {
+          if(spellInterval < 30)
+          {
+            document.getElementById("cooldown_bar_outline").style.display = "block";
+            document.getElementById("cooldown_bar_inside").style.width = (spellInterval * 3.33 + "%");
+            spellInterval++;
+          }
+          else
+          {
+            document.getElementById("cooldown_bar_outline").style.display = "none";
+            document.getElementById("cooldown_bar_inside").style.width = "0%";
+          }
+  
+          //if player mana is below 100 then add 0.3, else dont 
+          if(manaTemp < 100)
+          {
+            manaTemp += 0.3;
+            manaPlayerSetMana();
+          }
+          else 
+          {
+            manaTemp = 100;
+            manaPlayerSetMana();
+          }
+    
+          if(healthAmount < 0)
+          {
+            playerDied(currentStage);
+          }
+
+          if(enemiesCount <= 0)
+          {
+            nextStage(currentStage);
+          }
+
+          keyboardButtonsFunctionalities();
+
+          if(escapeButton.isDown)
+          {
+            if(!escapeButtonSwitch)
+            {
+              
+              this.scene.pause();
+              this.scene.launch('PauseMenu');
+              escapeButtonSwitch = true;
+            }
+          }
+          if(escapeButton.isUp)
+          {
+            escapeButtonSwitch = false;
+          }
+        }
+
+        enemiesMove(enemiesPhantomSprites, player, 160);
+        enemiesMove(enemiesLichSprites, player, 130);
+        enemiesMove(enemiesDemonSprites, player, 60);
+      },
+
+  });
+
+  var LastStage = new Phaser.Class({
+    Extends: Phaser.Scene,
+    initialize:
+
+    function LastStage()
+    {
+      Phaser.Scene.call(this, {key: 'LastStage'});
+    },
+
+    preload: function()
+    {
+      currentStage = 5;
+      loadSpritesAndAudio(currentStage);
+    },
+
+    create: function()
+    {
+      manaPlayerSetMana();
+
+      returnPlayerStatsWhenRestart();
+      createAnimationsAndAudio(currentStage);
+
+      enemies = null;
+      enemiesSprites = null;
+
+      backgroundImage = this.add.image(987.5, 620, 'background5');
+      backgroundImage.displayWidth = 1975;
+      backgroundImage.displayHeight = 1240;
+
+      player = this.physics.add.sprite(300, 400, 'playerDown');
+      player.anims.play('up', true); //player animation
+      player.displayWidth = 80; //player width
+      player.displayHeight = 80; //player height
+      player.body.collideWorldBounds = true; //player collides on world border
+      player.body.immovable = false; //player can be moved by other mobs
+
+      let difficultyLeveles = document.getElementsByName("difficulty"); //skeleton spawn depends on difficulty set
+
+      let enemiesOverlord = [];
+
+      enemiesOverlordSprites = [];
+
+      let difficultyLevel = 0; //difficulty level set 
+      for(let i = 0; i < difficultyLeveles.length; i++) //difficulty setting read
+      {
+        if(difficultyLeveles[i].checked)
+        {
+          difficultyLevel = difficultyLeveles[i].value;
+          break;
+        }
+      }
+
+      
+      for(let i = 0; i < 1; i++)
+      {
+        enemiesOverlord[i] = new Overlord("Overlord", 2500*difficultyLevel, "xpParticle");
+        enemiesOverlordSprites[i] = this.physics.add.sprite(987.5, 620, 'overlordAnimation');
+        enemiesOverlordSprites[i].body.setSize(200, 200);
+        enemiesOverlordSprites[i].anims.play('overlord', true);
+        enemiesOverlordSprites[i].displayHeight = 500;
+        enemiesOverlordSprites[i].displayWidth = 721;
+        enemiesOverlordSprites[i].body.collideWorldBounds = true;
+        enemiesOverlordSprites[i].body.immovable = true; 
+
+        enemiesCount++;
+      }
+      lastBossHealth = enemiesOverlord[0].health;
+      enemiesAddColissionToPlayer(enemiesOverlordSprites, player, currentStage, 5.0);
+
+      enemies = enemiesOverlord;
+      enemiesSprites = enemiesOverlordSprites;
+
+      setKeyboardKeys(currentStage);
+
+      this.scene.pause();
+      document.getElementById("stage_1_music").pause();
+      document.getElementById("stage_1_ambience").pause();
+      document.getElementById("stage_1_music").src = "assets/Audio/Music/stage5Music.mp3";
+      document.getElementById("stage_1_ambience").src = "assets/Audio/Music/stage5Ambience.mp3";
+      document.getElementById("stage_1_music").volume = 0.6; 
+      document.getElementById("stage_1_ambience").volume = 0.3; 
+      this.scene.launch('PauseMenu');
+
+
+    },
+
+    update: function()
+    {
+      if(playerAlive)
+      {
+        if(enemies[0].health <= lastBossHealth / 2)
+        {
+          lastBossSecondPhase = true;
+        }
+
+        if(spellInterval < 30)
+        {
+          document.getElementById("cooldown_bar_outline").style.display = "block";
+          document.getElementById("cooldown_bar_inside").style.width = (spellInterval * 3.33 + "%");
+          spellInterval++;
+        }
+        else
+        {
+          document.getElementById("cooldown_bar_outline").style.display = "none";
+          document.getElementById("cooldown_bar_inside").style.width = "0%";
+        }
+
+        //if player mana is below 100 then add 0.3, else dont 
+        if(manaTemp < 100)
+        {
+          manaTemp += 0.3;
+          manaPlayerSetMana();
+        }
+        else 
+        {
+          manaTemp = 100;
+          manaPlayerSetMana();
+        }
+  
+        if(healthAmount < 0)
+        {
+          playerDied(currentStage);
+        }
+
+        keyboardButtonsFunctionalities();
+
+        if(escapeButton.isDown)
+        {
+          if(!escapeButtonSwitch)
+          {
+            
+            this.scene.pause();
+            this.scene.launch('PauseMenu');
+            escapeButtonSwitch = true;
+          }
+        }
+        if(escapeButton.isUp)
+        {
+          escapeButtonSwitch = false;
+        }
+
+        let xDifference = player.x - enemiesOverlordSprites[0].x;
+        let yDifference = player.y - enemiesOverlordSprites[0].y;
+  
+        let c = Math.sqrt((xDifference * xDifference) + (yDifference * yDifference));
+        let sina = Math.abs(xDifference) / c;
+        let sinb = Math.abs(yDifference) / c;
+        
+        if(player.x > enemiesOverlordSprites[0].x)
+        {
+          if(player.y < enemiesOverlordSprites[0].y)  
+          {
+            enemiesOverlordSprites[0].angle = 90 * sina;
+          }
+          else
+          {
+            enemiesOverlordSprites[0].angle = 90 * sinb + 90;
+          }
+        }
+        if(player.x < enemiesOverlordSprites[0].x)
+        {
+          if(player.y > enemiesOverlordSprites[0].y)
+          {
+            enemiesOverlordSprites[0].angle = 360 - (90 * sinb + 90);
+          }
+          else
+          {
+            enemiesOverlordSprites[0].angle = 360 - (90 * sina);
+          }  
+        }
+  
+        if(!lastBossNovaActive)
+        {
+          lastBossSpellShootInterval++;
+          // lastBossSpellNovaInterval++;
+        }
+  
+        if(lastBossSpellShootInterval >= 60 && !lastBossNovaActive)
+        {
+          console.log("Tworze");
+          let lastBossFireballSingle = game.scene.scenes[currentStage - 1].physics.add.sprite(enemiesOverlordSprites[0].x, enemiesOverlordSprites[0].y - 100, 'lastBossFireball');
+          lastBossFireballSingle.anims.play('lbFireball', true);
+          lastBossFireballSingle.displayWidth = 50; lastBossFireballSingle.displayHeight = 16;
+
+          // lastBossFireballSingle.x = enemiesOverlordSprites[0].x + (40 * Math.sin * (Math.PI * 2 * enemiesOverlordSprites[0].angle / 360));
+          // lastBossFireballSingle.y = enemiesOverlordSprites[0].x + (40 * Math.cos * (Math.PI * 2 * enemiesOverlordSprites[0].angle / 360));
+          console.log(lastBossFireballSingle.x);
+          console.log(lastBossFireballSingle.y);
+          
+          if(player.x > enemiesOverlordSprites[0].x)
+          {
+            if(player.y < enemiesOverlordSprites[0].y)  
+            {
+              lastBossFireballSingle.body.velocity.setTo(sina * 150, sinb * (-150));
+            }
+            else
+            {
+              lastBossFireballSingle.body.velocity.setTo(sina * 150, sinb * 150);
+            }
+          }
+          if(player.x < enemiesOverlordSprites[0].x)
+          {
+            if(player.y > enemiesOverlordSprites[0].y)
+            {
+              lastBossFireballSingle.body.velocity.setTo(sina * (-150), sinb * 150);
+
+            }
+            else
+            {
+              lastBossFireballSingle.body.velocity.setTo(sina * (-150), sinb * (-150));
+            }  
+          }
+
+
+          lastBossSpellShootInterval = 0;
+        }
+
+        // if(lastBossSpellNovaInterval >= 2500)
+        // {
+
+        // }
+      }
+    },
+  });
+
   //Pause menu - this is treated as stage, so it needs to be implemented this way
   var PauseMenu = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -689,6 +1567,7 @@ function startGame()
     create: function()
     {
       document.getElementById("cooldown_bar_outline").style.display = "none";
+      document.getElementById("last_boss_outline").style.display = "none";
 
       document.getElementById("stage_1_music").pause();
       document.getElementById("stage_1_ambience").pause();
@@ -1582,6 +2461,7 @@ function startGame()
     game.scene.scenes[currentStage - 1].load.spritesheet('phantomAnimation', 'assets/VariousAnimations/phantomAnimation.png', { frameWidth: 100, frameHeight: 100});
     game.scene.scenes[currentStage - 1].load.spritesheet('lichAnimation', 'assets/VariousAnimations/lichAnimation.png', { frameWidth: 100, frameHeight: 100});
     game.scene.scenes[currentStage - 1].load.spritesheet('demonAnimation', 'assets/VariousAnimations/demonAnimation.png', { frameWidth: 267.75, frameHeight: 200});
+    game.scene.scenes[currentStage - 1].load.spritesheet('overlordAnimation', 'assets/VariousAnimations/overlordAnimation.png', { frameWidth: 395, frameHeight: 275});
 
     game.scene.scenes[currentStage - 1].load.spritesheet('toxicboltAnimation', 'assets/VariousAnimations/toxicboltAnimation2.png', { frameWidth: 100, frameHeight: 100});
     game.scene.scenes[currentStage - 1].load.spritesheet('fireballAnimation', 'assets/VariousAnimations/fireballAnimation.png', { frameWidth: 75, frameHeight: 100});
@@ -1593,12 +2473,17 @@ function startGame()
 
     game.scene.scenes[currentStage - 1].load.spritesheet('expParticle', 'assets/VariousAnimations/experienceOrbAnimation.png', { frameWidth: 68, frameHeight: 68});
     game.scene.scenes[currentStage - 1].load.spritesheet('hpPotion', 'assets/VariousAnimations/potionHealthAnimation.png', { frameWidth: 80, frameHeight: 80});
+    game.scene.scenes[currentStage - 1].load.spritesheet('lastBossFireball', 'assets/VariousAnimations/lastBossFireball.png', { frameWidth: 100, frameHeight: 34});
+    game.scene.scenes[currentStage - 1].load.spritesheet('lastBossChaosBolt', 'assets/VariousAnimations/lastBossChaosBolt.png', { frameWidth: 100, frameHeight: 34});
+    game.scene.scenes[currentStage - 1].load.spritesheet('lastBossExplosion', 'assets/VariousAnimations/lastBossExplosion.png', { frameWidth: 300, frameHeight: 300});
 
     game.scene.scenes[currentStage - 1].load.image('background', 'assets/Backgrounds/Background1.jpg');
     game.scene.scenes[currentStage - 1].load.image('background2', 'assets/Backgrounds/Background2.jpg');
     game.scene.scenes[currentStage - 1].load.image('background3', 'assets/Backgrounds/Background3.jpg');
     game.scene.scenes[currentStage - 1].load.image('background4', 'assets/Backgrounds/Background4.jpg');
+    game.scene.scenes[currentStage - 1].load.image('background5', 'assets/Backgrounds/Background5.jpg');
     game.scene.scenes[currentStage - 1].load.image('restartQuestionMenu', 'assets/GameMenu/MenuPopup.png');
+    game.scene.scenes[currentStage - 1].load.image('theEndMenu', 'assets/GameMenu/theEnd.png');
     game.scene.scenes[currentStage - 1].load.image('menuPopupTile', 'assets/GameMenu/MenuPopup2.png');
     game.scene.scenes[currentStage - 1].load.image('buttonSmallYes', 'assets/GameMenu/ButtonSmallYes.png');
     game.scene.scenes[currentStage - 1].load.image('buttonSmallNo', 'assets/GameMenu/ButtonSmallNo.png');
@@ -1764,6 +2649,12 @@ function startGame()
       game.scene.scenes[currentStage - 1].anims.create({
         key: 'demon',
         frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('demonAnimation', { start: 0, end: 11}),
+        frameRate: 5,
+        repeat: -1
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'overlord',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('overlordAnimation', { start: 0, end: 6}),
         frameRate: 6,
         repeat: -1
       })
@@ -1780,7 +2671,26 @@ function startGame()
         frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('hpPotion', { start: 0, end: 3}),
         frameRate: 5,
         repeat: -1
+      })      
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'lbFireball',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('lastBossFireball', { start: 0, end: 3}),
+        frameRate: 6,
+        repeat: 6
       })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'lbChaosBolt',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('lastBossChaosBolt', { start: 0, end: 3}),
+        frameRate: 7,
+        repeat: 6
+      })
+      game.scene.scenes[currentStage - 1].anims.create({
+        key: 'lbExplosion',
+        frames: game.scene.scenes[currentStage - 1].anims.generateFrameNumbers('lastBossExplosion', { start: 0, end: 9}),
+        frameRate: 20,
+        repeat: 0
+      })
+      
 
       /* - - - - - - - - - - - - Animations - - - - - - - - - - - - */
 
@@ -2038,12 +2948,6 @@ function startGame()
   function nextStage(currentStage)
   {
     nextStagePopupMenuVisible = true;
-    xpSave = xp;
-    healthSave = healthTemp;
-    spellsSave = spellsBought;
-    //FIXME
-    potionManaCountSave = potionManaCount;
-    potionHealthCount = potionHealthCountSave;
     
     enemiesCount = 1; // this is to stop nextStage() loop
     playerNotMovable = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x, player.y, 'playerDown'); //player sprite set
@@ -2056,8 +2960,6 @@ function startGame()
     backgroundBlackout = game.scene.scenes[currentStage - 1].add.image(987.5, 620, 'backgroundBlackout');
     backgroundBlackout.displayWidth = 1975;
     backgroundBlackout.displayHeight = 1240;
-
-    
 
     continueButton = game.scene.scenes[currentStage - 1].add.image(game.canvas.width/2,  game.canvas.height/2, 'buttonContinue').setInteractive();
     continueButton.displayWidth = 680;
@@ -2075,10 +2977,51 @@ function startGame()
 
     continueButton.on('pointerdown', function (event)
     {
+      xpSave = xp; healthSave = healthAmount;
+      potionHealthCountSave = potionHealthCount;
+      potionManaCountSave = potionManaCount;
+      manaTemp = 100;
+      enemiesCount = 0;
+      for(let i = 0; i < 5; i++)
+      {
+        spellsSave[i] = spellsBought[i]
+      }
       game.scene.scenes[currentStage - 1].scene.stop();
       game.scene.scenes[currentStage - 1].scene.launch(stageToStart);
       nextStagePopupMenuVisible = false;
     });
+  }
+
+  function gameEnded(currentStage)
+  {
+    nextStagePopupMenuVisible = true;
+    
+    enemiesCount = 1; // this is to stop nextStage() loop
+    playerNotMovable = game.scene.scenes[currentStage - 1].physics.add.sprite(player.x, player.y, 'playerDown'); //player sprite set
+    player.disableBody(false, true);
+
+    playerNotMovable.anims.play('up', true); //player animation
+    playerNotMovable.displayWidth = 80; //player width
+    playerNotMovable.displayHeight = 80; //player height
+
+    backgroundBlackout = game.scene.scenes[currentStage - 1].add.image(987.5, 620, 'backgroundBlackout');
+    backgroundBlackout.displayWidth = 1975;
+    backgroundBlackout.displayHeight = 1240;
+
+    endGameTile = this.add.image(game.canvas.width/2- 200, game.canvas.height/2 - 200, 'theEndMenu');
+    endGameTile.displayWidth = 800;
+    endGameTile.displayHeight = 300;
+
+
+    continueButton = game.scene.scenes[currentStage - 1].add.image(game.canvas.width/2,  game.canvas.height/2, 'buttonContinue').setInteractive();
+    continueButton.displayWidth = 680;
+    continueButton.displayHeight = 110;
+    continueButton.on('pointerdown', function (event)
+    {
+      location.reload();
+    });
+
+
   }
 
   function spellMovement(playerDirection, spellName, player, speed, lightning)
@@ -2398,6 +3341,7 @@ function startGame()
       document.getElementById("toxicbolt_button").onclick = () =>
       {
         interfaceButtonsFunctionalities('spellToxicbolt');
+
       };
       document.getElementById("toxicbolt_button").style.opacity = "100%";
       spellsBought[2] = spellsSave[2];
@@ -2474,7 +3418,6 @@ function startGame()
         document.getElementById("mana_potion_count").innerHTML = potionManaCount;
       }
     }
-
   }
 
   function addExpText(x, y, currentStage, enemies)
@@ -2593,6 +3536,17 @@ function startGame()
     }, 60 * i);  
   }
 
+  function lastBossShoot(lastBoss, player, currentStage)
+  {
+
+  }
+
+  function lassBossShootCircle()
+  {
+
+  }
+
+
   //deprecated on purpose
   function enemyDrop(enemies, currentStage, player, enemyX, enemyY, enemyHeight, enemyWidth)
   {
@@ -2623,6 +3577,9 @@ function startGame()
     }
   }
 
+
+
+
   /* -- actions -- */
   /* - - - - - - - - - - GAME METHODS - - - - - - - - - - */
 
@@ -2646,7 +3603,7 @@ function startGame()
     {
       default: 'arcade',
     },
-    scene: [ FirstStage, SecondStage, ThirdStage, PauseMenu ]
+    scene: [ FirstStage, SecondStage, ThirdStage, FourthStage, LastStage, PauseMenu ]
   };
 
   game = new Phaser.Game(config); //game object, most important
@@ -2655,9 +3612,10 @@ function startGame()
   var enemies = [];
 
   var enemiesSkeletonSprites = [];
+  var enemiesPhantomSprites = [];
   var enemiesLichSprites = [];
   var enemiesDemonSprites = [];
-  var enemiesPhantomSprites = [];
+  var enemiesOverlordSprites = [];
   
   dmgTextCount = 0;
   enemiesCount = 0;
@@ -2697,31 +3655,31 @@ function restoreHpOrMana(whatToRestore)
               healthTemp += 20;
             }
             if(healthTemp > 50)
-      {
-        if(healthTemp >= 100)
-        {
-          document.getElementById("health_bar").src = "assets/HpBars/hpBar100.jpg";
-        }
-        if(healthTemp < 100 && healthTemp >= 90)
-        {
-          document.getElementById("health_bar").src = "assets/HpBars/hpBar90.jpg";
-        }
-        if(healthTemp < 90 && healthTemp >= 80)
-        {
-          document.getElementById("health_bar").src = "assets/HpBars/hpBar80.jpg";
-        }
-        if(healthTemp < 80 && healthTemp >= 70)
-        {
-          document.getElementById("health_bar").src = "assets/HpBars/hpBar70.jpg";
-        }
-        if(healthTemp < 70 && healthTemp >= 60)
-        {
-          document.getElementById("health_bar").src = "assets/HpBars/hpBar60.jpg";
-        }
-        if(healthTemp < 60 && healthTemp >= 50)
-        {
-          document.getElementById("health_bar").src = "assets/HpBars/hpBar50Orange.jpg";
-        }
+            {
+              if(healthTemp >= 100)
+              {
+                document.getElementById("health_bar").src = "assets/HpBars/hpBar100.jpg";
+              }
+              if(healthTemp < 100 && healthTemp >= 90)
+              {
+                document.getElementById("health_bar").src = "assets/HpBars/hpBar90.jpg";
+              }
+              if(healthTemp < 90 && healthTemp >= 80)
+              {
+                document.getElementById("health_bar").src = "assets/HpBars/hpBar80.jpg";
+              }
+              if(healthTemp < 80 && healthTemp >= 70)
+              {
+                document.getElementById("health_bar").src = "assets/HpBars/hpBar70.jpg";
+              }
+              if(healthTemp < 70 && healthTemp >= 60)
+              {
+                document.getElementById("health_bar").src = "assets/HpBars/hpBar60.jpg";
+              }
+              if(healthTemp < 60 && healthTemp >= 50)
+              {
+                document.getElementById("health_bar").src = "assets/HpBars/hpBar50Orange.jpg";
+              }
             }
             else
             {
@@ -2777,7 +3735,6 @@ function restoreHpOrMana(whatToRestore)
             potionManaCount--;
             potionDrink.play();
             document.getElementById("mana_potion_count").innerHTML = potionManaCount;
-            console.log(potionManaCount);
             if(potionManaCount == 0)
             {
 

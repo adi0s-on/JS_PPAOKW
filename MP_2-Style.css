@@ -18,6 +18,11 @@ body
     color: #c79900;
 }
 
+audio
+{
+    display: none;
+}
+
 @keyframes animatezoom 
 {
     from {transform: scale(0)} 
@@ -278,7 +283,7 @@ body
     position: absolute;
     z-index: 6;
     width: 15vw;
-    height: 4vh;
+    height: 3vh;
     margin: 89vh 32vw 0vh 51.5vw;
     background-color: rgba(0, 0, 0, 0.494);
     border: 0.4vh  solid #c79900;
@@ -296,6 +301,31 @@ body
     background-repeat: no-repeat;
 }
 
+.last_boss_outline
+{
+    display: none;
+    top: 0;
+    position: absolute;
+    z-index: 6;
+    width: 41vw;
+    height: 3vh;
+    margin: 2vh 19vw 0vh 38.5vw;
+    background-color: rgba(0, 0, 0, 0.659);
+    border: 0.4vh  solid #151411;
+    box-shadow: 0vh 0vh 2vw black;
+    border-radius: 1vh;
+}
+
+.last_boss_inside
+{
+    border-radius: 0.7vh;
+    width: 100%;
+    height: inherit;
+    background-image: url("assets/GameMenu/lastBossHpBar.jpg");
+    filter: contrast(150%);
+    box-shadow: 0vh 0vh 1vw black;
+    background-repeat: no-repeat;
+}
 .lightning_button
 {
     margin: 20vh 10vw 0vw 63vw;
